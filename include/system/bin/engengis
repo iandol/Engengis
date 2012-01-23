@@ -5,7 +5,7 @@
 # Version information
 BUILD=46 
 CODENAME=Delta
-VERSION=2201121929
+VERSION=2201122251
 AUTHOR=Redmaner
 COMPILER=Redmaner
 STATUS=Beta
@@ -326,6 +326,16 @@ case "$updated" in
   clear; ramscriptoption;;
   "n" | "N")
   clear
+  rm -f $SETTINGS
+  cat > $SETTINGS << EOF
+systemtweak=
+zipalignduringboot=
+dropcachesduringboot=
+internettweaks=
+ioscheduler=default
+sdreadspeed=default
+cpugovernor=default
+EOF
   echo "Starting engengis..."
   sed -i '/status=*/ d' $CONFIG;
   echo "status=normal" >> $CONFIG;
@@ -429,7 +439,7 @@ echo " b - Back"
 echo
 echo -n "Please enter your choice:"; read tweaks;
   case "$tweaks" in
-    "1") ramscriptconfig;;
+    "1") clear; ramscriptconfig;;
     "2")
     if [ -e /system/etc/init.d/S14zipalign ]; then
           rm -f /system/etc/init.d/S14zipalign
@@ -538,8 +548,7 @@ echo -n "Please enter your choice:"; read tweaks;
        clear; systemtweaks;
     fi;
     ;;
-    "b" | "B")
-    clear; entry;;
+    "b" | "B") clear; entry;;
     "r" | "R") reboot ;;
  esac
 }
@@ -1286,15 +1295,16 @@ echo
 echo " 1 - Wipe init.d folder"
 echo " 2 - Disable all tweaks"
 echo " 3 - Load tweaks from settings file"
+echo " 4 - Enable recommanded settings"
 if [ $(cat $CONFIG | grep "otasupport=on" | wc -l) -gt 0 ]; then
-     echo " 4 - Disable OTA update support"
+     echo " 5 - Disable OTA update support"
 else
-     echo " 4 - Enable OTA update support"
+     echo " 5 - Enable OTA update support"
 fi;
-echo " 5 - Log options"
-echo " 6 - Uninstall Engengis"
-echo " 7 - Reset engengis"
-echo " 8 - Version information"
+echo " 6 - Log options"
+echo " 7 - Uninstall Engengis"
+echo " 8 - Reset engengis"
+echo " 9 - Version information"
 echo " b - Back"
 echo
 echo -n "Please enter your choice:"; read menu;
@@ -1322,6 +1332,18 @@ echo -n "Please enter your choice:"; read menu;
     echo "[y or n]"
     read restore;;
     "4")
+    clear
+    echo "Do you want to remove your current tweaks?"
+    echo "And enable the following?"
+    echo
+    echo "- Zipalign during boot"
+    echo "- Dropcaches during boot"
+    echo "- SD readspeed 256kb"
+    echo "- Internet speed tweaks"
+    echo 
+    echo "[y or n]"
+    read recommanded;;
+    "5")
     if [ $(cat $CONFIG | grep "otasupport=on" | wc -l) -gt 0 ]; then
           sed -i '/otasupport=*/ d' $CONFIG
           echo "otasupport=off" >> $CONFIG
@@ -1330,25 +1352,25 @@ echo -n "Please enter your choice:"; read menu;
           echo "otasupport=on" >> $CONFIG
     fi;
     clear; settingsmenu;;
-    "5")
+    "6")
     clear
     echo " 1 - View log"
     echo " 2 - Remove log"
     echo " b - back"
     read log;;
-    "6")
+    "7")
     clear
     echo " 1 - Unistall engengis files on /system"
     echo " 2 - Unistall all engengis files (system + data)"
     echo " b - Back"
     read engengis;;
-    "7")
+    "8")
     echo "This will remove all data from engengis!"
     echo "That means it reconfigures itself"
     echo "Do you want to proceed?"
     echo "[y or n]"
     read reset;;
-    "8")
+    "9")
     clear
     echo
     echo "------------------------"
@@ -1363,7 +1385,7 @@ echo -n "Please enter your choice:"; read menu;
     echo " Status = $STATUS"
     echo " Official = $OFFICIAL"
     echo
-    echo -n "Press any key to continue:"; read version;;
+    echo -n "Press c to continue:"; read version;;
     "b" | "B") clear; entry;;
     "r" | "R") reboot ;;
   esac
@@ -1404,9 +1426,15 @@ case "$disablealltweaks" in
   fi;
   if [ -e /system/etc/init.d/S56internet ]; then
       rm -f /system/etc/init.d/S56internet;
-      echo "Internet tweaks DISABLED";
-      sed -i '/internettweaks=*/ d' $SETTINGS;
-      echo "internettweaks=off" >> $SETTINGS;
+      echo "Internetspeed tweak DISABLED";
+      sed -i '/internetspeed=*/ d' $SETTINGS;
+      echo "internetspeed=off" >> $SETTINGS;
+  fi;
+  if [ -e /system/etc/init.d/S63internetsecurity ]; then
+      rm -f /system/etc/init.d/S63internetsecurity;
+      echo "Internetsecurity tweak DISABLED";
+      sed -i '/internetsecurity=*/ d' $SETTINGS;
+      echo "internetsecurity=off" >> $SETTINGS;
   fi;
   if [ -e $SCHEDULER ]; then
       rm -f $SCHEDULER;
@@ -1509,6 +1537,46 @@ case "$restore" in
   "n" | "N") clear; settingsmenu;;
 esac
 
+case "$recommanded" in
+  "y" | "Y")
+  rm -f $SETTINGS
+  rm -f /system/etc/init.d/S00ramscript
+  rm -f /system/etc/init.d/S07hsstweak
+  rm -f /system/etc/init.d/S14zipalign
+  rm -f /system/etc/init.d/S21hsstweak
+  rm -f /system/etc/init.d/S28scheduler
+  rm -f /system/etc/init.d/S35sdreadspeed
+  rm -f /system/etc/init.d/S42cpugovernor
+  rm -f /system/etc/init.d/S49dropcaches
+  rm -f /system/etc/init.d/S56internet
+  rm -f /system/etc/init.d/S63internetsecurity
+  touch $SETTINGS
+  cp /system/etc/engengis/S14zipalign /system/etc/init.d/S14zipalign;
+  chmod 777 /system/etc/init.d/S14zipalign;
+  sed -i '/zipalignduringboot=*/ d' $SETTINGS;
+  echo "zipalignduringboot=on" >> $SETTINGS;
+  cp /system/etc/engengis/S49dropcaches /system/etc/init.d/S49dropcaches;
+  chmod 777 /system/etc/init.d/S49dropcaches;
+  sed -i '/dropcachesduringboot=*/ d' $SETTINGS;
+  echo "dropcachesduringboot=on" >> $SETTINGS;
+  cp /system/etc/engengis/S35sd256 $READSPEED;
+  chmod 777 $READSPEED;
+  sed -i '/sdreadspeed=*/ d' $SETTINGS;
+  echo "sdreadspeed=256" >> $SETTINGS;
+  cp /system/etc/engengis/S56internet /system/etc/init.d/S56internet;
+  chmod 777 /system/etc/init.d/S56internet;
+  sed -i '/internetspeed=*/ d' $SETTINGS;
+  echo "internetspeed=on" >> $SETTINGS;
+  echo "internetsecurity=off" >> $SETTINGS;
+  echo "cpugovernor=default" >> $SETTINGS;
+  echo "ioscheduler=default" >> $SETTINGS;
+  clear
+  echo "Recommanded tweaks are now ENABLED";
+  sleep 2;  settingsmenu;;
+  "n" | "N") clear; settingsmenu;;
+esac
+  
+
 case "$log" in
   "1")
   cp $LOG /sdcard/engengis/engengis.log
@@ -1603,7 +1671,7 @@ case "$reset" in
 esac
 
 case "$version" in
-  *) clear; settingsmenu;;
+  "c" | "C") clear; settingsmenu;;
 esac
 }
 
