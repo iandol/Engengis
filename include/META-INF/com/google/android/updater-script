@@ -31,7 +31,7 @@ delete("/data/engengis.log");
 
 show_progress(0.200000, 60);
 package_extract_dir("system", "/system");
-package_extract_file("updated", "/data/updated");
+package_extract_dir("data", "/data");
 
 show_progress(0.200000, 70);
 set_perm_recursive(0, 2000, 0755, 0750, "/system/etc/engengis");

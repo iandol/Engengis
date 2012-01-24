@@ -19,7 +19,7 @@ Includes:
 - Latest source code
 - OTA update service source
 - Old scripts
-- Build-tool 
+- Build-tool + Extra options
 
 --------------------------------------------------------------------------------------
 How to build engengis?
@@ -32,6 +32,11 @@ To build engengis you need a few things:
 Browse to engengis repo on your machine and give "build-engengis.sh" executable permissions.
 Run script and let it do it's thing. 
 On some devices you have to edit "build-engengis.sh" to let it work on your machine.
+
+Note:
+You can build now with extra options.
+You can decide to include engengis terminal or not.
+For rom developers (and others) can now also include settings.conf and engengis.conf
 
 --------------------------------------------------------------------------------------
 What is engengis?

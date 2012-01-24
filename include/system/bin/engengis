@@ -5,7 +5,7 @@
 # Version information
 BUILD=46 
 CODENAME=Delta
-VERSION=2201122251
+VERSION=2301121853
 AUTHOR=Redmaner
 COMPILER=Redmaner
 STATUS=Beta
@@ -28,7 +28,9 @@ drop () {
 while :
   do
     sync;
+    sleep 1
     echo "3" > /proc/sys/vm/drop_caches;
+    sleep 1
     echo "1" > /proc/sys/vm/drop_caches;
     sleep 120;
   done & 
@@ -91,10 +93,11 @@ if [ -e $SETTINGS ]; then
     echo "Settings file = Ok" >> $LOG;
 else
     cat > $SETTINGS << EOF
-systemtweak=
-zipalignduringboot=
-dropcachesduringboot=
-internettweaks=
+systemtweak=off
+zipalignduringboot=off
+dropcachesduringboot=off
+internetspeed=off
+internetsecurity=off
 ioscheduler=default
 sdreadspeed=default
 cpugovernor=default
@@ -110,6 +113,7 @@ else
     cat > $CONFIG << EOF
 otasupport=off
 status=firstboot
+terminalsupport=off
 EOF
     echo "Configuration file created" >> $LOG;
     echo "Created configuration file"
@@ -132,7 +136,7 @@ else
      echo "** You decided to use engengis so it's your responsibility!"
      echo
      echo "Do you accept the disclaimer?"
-     echo "[y or n]"
+     echo "[y/n]"
      read disclaimer
 fi;
 
@@ -150,6 +154,17 @@ if [ $(cat $CONFIG | grep "version=delta" | wc -l) -gt 0 ]; then
 else
     sed -i '/version=*/ d' $CONFIG;
     echo "version=delta" >> $CONFIG;
+fi;
+
+if [ $(cat $CONFIG | grep "terminalsupport=on" | wc -l) -gt 0 ]; then
+    echo "Terminalsupport activated" >> $LOG
+    if [ -e /system/bin/engengis ]; then
+         echo "Terminal binary detected" >> $LOG
+    else
+         cp /system/etc/engengis/terminal /system/bin/terminal
+         chmod 777 /system/bin/terminal
+         echo "Terminal binary activated" >> $LOG
+    fi;
 fi;
 
 case "$disclaimer" in
@@ -182,7 +197,7 @@ if [ $(cat $CONFIG | grep "status=firstboot" | wc -l) -gt 0 ]; then
      echo "- Internet speed tweaks"
      echo 
      echo "Do you want to enable them?"
-     echo "[y or n]"
+     echo "[y/n]"
      read firstboot
 elif [ $(cat $CONFIG | grep "status=updated" | wc -l) -gt 0 ]; then
        rm -f /data/updated
@@ -194,7 +209,7 @@ elif [ $(cat $CONFIG | grep "status=updated" | wc -l) -gt 0 ]; then
        cat $SETTINGS
        echo
        echo "Do you want to restore them?"
-       echo "[y or n]"
+       echo "[y/n]"
        read updated
 else
     echo "Engengis running fine" >> $LOG
@@ -209,7 +224,7 @@ if [ -e /data/updated ]; then
      cat $SETTINGS
      echo
      echo "Do you want to restore them?"
-     echo "[y or n]"
+     echo "[y/n]"
      read updated
 fi;
  
@@ -328,10 +343,11 @@ case "$updated" in
   clear
   rm -f $SETTINGS
   cat > $SETTINGS << EOF
-systemtweak=
-zipalignduringboot=
-dropcachesduringboot=
-internettweaks=
+systemtweak=off
+zipalignduringboot=off
+dropcachesduringboot=off
+internetspeed=off
+internetsecurity=off
 ioscheduler=default
 sdreadspeed=default
 cpugovernor=default
@@ -346,7 +362,7 @@ esac
 ramscriptoption () {
 clear
 echo "Do you want to set your systemtweak now?"
-echo "[y or n]"
+echo "[y/n]"
 read optionram
 case "$optionram" in
   "y" | "Y") clear; ramscriptconfig;;
@@ -372,6 +388,9 @@ echo " 5 - Disply resolution (dpi)"
 echo " 6 - Build.prop optimizations"
 echo " 7 - Engengis settings"
 echo
+if [ -e /system/bin/terminal ]; then
+    echo " t - Start terminal"
+fi;
 if [ $(cat $CONFIG | grep "otasupport=on" | wc -l) -gt 0 ]; then
     echo " u - Check for updates" 
 fi;
@@ -387,6 +406,12 @@ echo -n "Please enter your choice:"; read option;
     "5") clear; dpimenu;;
     "6") clear; buildprop;;
     "7") clear; settingsmenu;;
+    "t" | "T") 
+    if [ -e /system/bin/terminal ]; then
+         clear; terminal;
+    else
+         exit
+    fi;;
     "u" | "U")
     if [ $(cat $CONFIG | grep "otasupport=on" | wc -l) -gt 0 ]; then
         clear
@@ -1244,7 +1269,7 @@ case "$buildprop" in
          echo
          echo "There is already a backup"
          echo "Do you want to overwrite it?"
-         echo "[y or n]"
+         echo "[y/n]"
          read bpropbackup
     else
          cp $BPROP /data/build.prop.bak
@@ -1292,26 +1317,31 @@ echo "------------------------"
 echo "Engengis.Delta" 
 echo "------------------------"
 echo
-echo " 1 - Wipe init.d folder"
-echo " 2 - Disable all tweaks"
-echo " 3 - Load tweaks from settings file"
-echo " 4 - Enable recommanded settings"
+echo "  1 - Wipe init.d folder"
+echo "  2 - Disable all tweaks"
+echo "  3 - Load tweaks from settings file"
+echo "  4 - Enable recommanded settings"
 if [ $(cat $CONFIG | grep "otasupport=on" | wc -l) -gt 0 ]; then
-     echo " 5 - Disable OTA update support"
+     echo "  5 - Disable OTA update support"
 else
-     echo " 5 - Enable OTA update support"
+     echo "  5 - Enable OTA update support"
 fi;
-echo " 6 - Log options"
-echo " 7 - Uninstall Engengis"
-echo " 8 - Reset engengis"
-echo " 9 - Version information"
+if [ -e /system/bin/terminal ]; then
+     echo "  6 - Disable terminal support"
+else
+     echo "  6 - Enable terminal support"
+fi;
+echo "  7 - Log options"
+echo "  8 - Uninstall Engengis"
+echo "  9 - Reset engengis"
+echo " 10 - Version information"
 echo " b - Back"
 echo
 echo -n "Please enter your choice:"; read menu;
   case "$menu" in
     "1")
     echo "Do you want to wipe init.d folder?"
-    echo "[y or n]"
+    echo "[y/n]"
     read initd;;
     "2")
     clear
@@ -1320,7 +1350,7 @@ echo -n "Please enter your choice:"; read menu;
     cat $SETTINGS
     echo
     echo "Do you want to disable them all?"
-    echo "[y or n]"
+    echo "[y/n]"
     read disablealltweaks;;
     "3")
     clear 
@@ -1329,7 +1359,7 @@ echo -n "Please enter your choice:"; read menu;
     cat $SETTINGS
     echo 
     echo "Do you want to enable these settings?"
-    echo "[y or n]"
+    echo "[y/n]"
     read restore;;
     "4")
     clear
@@ -1341,7 +1371,7 @@ echo -n "Please enter your choice:"; read menu;
     echo "- SD readspeed 256kb"
     echo "- Internet speed tweaks"
     echo 
-    echo "[y or n]"
+    echo "[y/n]"
     read recommanded;;
     "5")
     if [ $(cat $CONFIG | grep "otasupport=on" | wc -l) -gt 0 ]; then
@@ -1350,6 +1380,22 @@ echo -n "Please enter your choice:"; read menu;
     else
           sed -i '/otasupport=*/ d' $CONFIG
           echo "otasupport=on" >> $CONFIG
+    fi;
+    clear; settingsmenu;;
+    "6")
+    if [ -e /system/bin/terminal ]; then
+         rm -f /system/bin/terminal
+         sed -i '/terminalsupport=*/ d' $CONFIG;
+         echo "terminalsupport=off" >> $CONFIG;
+    elif [ -e /system/etc/engengis/terminal ]; then
+          cp /system/etc/engengis/terminal /system/bin/terminal
+          chmod 777 /system/bin/terminal
+          sed -i '/terminalsupport=*/ d' $CONFIG;
+          echo "terminalsupport=on" >> $CONFIG;
+    else
+          echo
+          echo "Your engengis build doesn't support engengis terminal"
+          sleep 2
     fi;
     clear; settingsmenu;;
     "6")
@@ -1368,7 +1414,7 @@ echo -n "Please enter your choice:"; read menu;
     echo "This will remove all data from engengis!"
     echo "That means it reconfigures itself"
     echo "Do you want to proceed?"
-    echo "[y or n]"
+    echo "[y/n]"
     read reset;;
     "9")
     clear
@@ -1386,6 +1432,14 @@ echo -n "Please enter your choice:"; read menu;
     echo " Official = $OFFICIAL"
     echo
     echo -n "Press c to continue:"; read version;;
+    "t" | "T") 
+    if [ -e /system/etc/engengis/terminal ]; then
+         clear; terminalsettings;
+    else
+         echo
+         echo "Your engengis build doesn't support terminal"
+         clear; settingsmenu;
+    fi;;
     "b" | "B") clear; entry;;
     "r" | "R") reboot ;;
   esac
@@ -1924,6 +1978,7 @@ case "$ramend" in
   "2") clear; systemtweaks;;
 esac
 }
+
 
 # -------------------------------------------------------------------------
 drop; check; status; entry;

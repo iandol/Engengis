@@ -1,0 +1,180 @@
+#!/system/bin/sh
+# Copyright (c) 2012, Jake "redmaner" van der Putten
+# Engengis Project
+# Version: 2301121746
+# Features = 22
+
+BPROP=/system/build.prop
+
+terminal () {
+clear
+echo " ~ Engengis terminal ~"
+echo "------------------------"
+echo -n "Enter option:"; read options;
+
+case "$options" in
+  "wipe batterystats") #1
+  rm -f /data/system/batterystats.bin
+  terminal;;
+  "wipe dalvikcache") #2
+  rm -rf /data/dalvik-cache
+  rm -rf /cache/dalvik-cache
+  echo "Do you want to reboot now?"
+  echo "[Y/N]"
+  read rebootphone;;
+  "wipe cache") #3
+  rm -rf /cache
+  echo "Do you want to reboot now?"
+  echo "[Y/N]"
+  read rebootphone;;
+  "wipe init.d") #4
+  rm -rf /system/etc/init.d
+  echo "Do you want to reboot now?"
+  echo "[Y/N]"
+  read rebootphone;;
+  "logcat now") #5
+  echo "Starting logcat to file"
+  echo "Find at sdcard/`date`.log"
+  logcat -f /sdcard/`date`.log;;
+  "240dpi") #6
+  sed -i '/ro.sf.lcd_density=*/ d' $BPROP;
+  echo "ro.sf.lcd_density=240" >> $BPROP;
+  echo
+  echo "Set dpi to 240"
+  echo "Phone will reboot in a few seconds!"
+  sleep 3
+  reboot;;
+  "230dpi") #7
+  sed -i '/ro.sf.lcd_density=*/ d' $BPROP;
+  echo "ro.sf.lcd_density=230" >> $BPROP;
+  echo
+  echo "Set dpi to 230"
+  echo "Phone will reboot in a few seconds!"
+  sleep 3
+  reboot;;
+  "220dpi") #8
+  sed -i '/ro.sf.lcd_density=*/ d' $BPROP;
+  echo "ro.sf.lcd_density=220" >> $BPROP;
+  echo
+  echo "Set dpi to 220"
+  echo "Phone will reboot in a few seconds!"
+  sleep 3
+  reboot;;
+  "210dpi") #9
+  sed -i '/ro.sf.lcd_density=*/ d' $BPROP;
+  echo "ro.sf.lcd_density=210" >> $BPROP;
+  echo
+  echo "Set dpi to 210"
+  echo "Phone will reboot in a few seconds!"
+  sleep 3
+  reboot;;
+  "200dpi") #10
+  sed -i '/ro.sf.lcd_density=*/ d' $BPROP;
+  echo "ro.sf.lcd_density=200" >> $BPROP;
+  echo
+  echo "Set dpi to 200"
+  echo "Phone will reboot in a few seconds!"
+  sleep 3
+  reboot;;
+  "182dpi") #11
+  sed -i '/ro.sf.lcd_density=*/ d' $BPROP;
+  echo "ro.sf.lcd_density=182" >> $BPROP;
+  echo
+  echo "Set dpi to 182"
+  echo "Phone will reboot in a few seconds!"
+  sleep 3
+  reboot;;
+  "160dpi") #12
+  sed -i '/ro.sf.lcd_density=*/ d' $BPROP;
+  echo "ro.sf.lcd_density=160" >> $BPROP;
+  echo
+  echo "Set dpi to 160"
+  echo "Phone will reboot in a few seconds!"
+  sleep 3
+  reboot;;
+  "150dpi") #13
+  sed -i '/ro.sf.lcd_density=*/ d' $BPROP;
+  echo "ro.sf.lcd_density=150" >> $BPROP;
+  echo
+  echo "Set dpi to 150"
+  echo "Phone will reboot in a few seconds!"
+  sleep 3
+  reboot;;
+  "140dpi") #14
+  sed -i '/ro.sf.lcd_density=*/ d' $BPROP;
+  echo "ro.sf.lcd_density=140" >> $BPROP;
+  echo
+  echo "Set dpi to 140"
+  echo "Phone will reboot in a few seconds!"
+  sleep 3
+  reboot;;
+  "optimize sqlite") #15
+  clear
+  echo "Ignore all errors during proces!"
+  echo "Errors won't harm your phone!"
+  sleep 3
+  clear
+  echo "Optimizing Sqlite db's please wait..."
+  sleep 1
+  # Thanks to pikachu01 for this script.
+  # All credits for this script goes to him.
+	for i in \
+	`busybox find /data -iname "*.db"`; 
+	do \
+		/system/xbin/sqlite3 $i 'VACUUM;'; 
+		/system/xbin/sqlite3 $i 'REINDEX;'; 
+	done;
+	if [ -d "/dbdata" ]; then
+		for i in \
+		`busybox find /dbdata -iname "*.db"`; 
+		do \
+			/system/xbin/sqlite3 $i 'VACUUM;'; 
+			/system/xbin/sqlite3 $i 'REINDEX;'; 
+		done;
+	fi;
+	if [ -d "/datadata" ]; then
+		for i in \
+		`busybox find /datadata -iname "*.db"`; 
+		do \
+			/system/xbin/sqlite3 $i 'VACUUM;'; 
+			/system/xbin/sqlite3 $i 'REINDEX;'; 
+		done;
+	fi;
+	for i in \
+	`busybox find /sdcard -iname "*.db"`; 
+	do \
+		/system/xbin/sqlite3 $i 'VACUUM;'; 
+		/system/xbin/sqlite3 $i 'REINDEX;'; 
+	done;
+  clear; terminal;;
+  "drop caches") #16
+  sync;
+  sleep 1
+  echo "3" > /proc/sys/vm/drop_caches
+  sleep 1
+  echo "1" > /proc/sys/vm/drop_caches
+  sleep
+  echo
+  echo "Caches dropped!"
+  sleep 2
+  clear; terminal;;
+  "force engengis") #17
+  sh /system/etc/init.d/S*
+  sleep 3
+  clear; terminal;;
+  "engengis") clear; engengis;; #18
+  "exit") clear; exit;; #19
+  "reboot") clear; reboot;; #20
+  "poweroff") clear; poweroff;; #21
+  "recovery") clear; recovery;; #22
+esac
+}
+
+rebootphone () {
+case "$reboot" in
+  "y" | "Y") reboot;;
+  "n" | "N") terminal;;
+esac
+}
+
+terminal;
