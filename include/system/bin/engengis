@@ -5,7 +5,7 @@
 # Version information
 BUILD=46 
 CODENAME=Delta
-VERSION=2301121853
+VERSION=2401122207
 AUTHOR=Redmaner
 COMPILER=Redmaner
 STATUS=Beta
@@ -397,7 +397,7 @@ fi;
 echo " r - Reboot (apply changes)"
 echo " e - Exit"
 echo
-echo -n "Please enter your choice:"; read option;
+echo -n "Please enter your choice: "; read option;
   case "$option" in
     "1") clear; systemtweaks;;
     "2") clear; schedulersettings;;
@@ -462,7 +462,7 @@ else
 fi;
 echo " b - Back"
 echo
-echo -n "Please enter your choice:"; read tweaks;
+echo -n "Please enter your choice: "; read tweaks;
   case "$tweaks" in
     "1") clear; ramscriptconfig;;
     "2")
@@ -625,7 +625,7 @@ if [ -e $SCHEDULER ]; then
   fi;
 fi;
 echo
-echo -n "Please enter your choice:"; read options;
+echo -n "Please enter your choice: "; read options;
 
 case "$options" in
   "1")
@@ -738,7 +738,7 @@ elif [ $(cat $READSPEED | grep "# SD-Readspeed 4096" | wc -l) -gt 0 ]; then
 fi;
 fi;
 echo
-echo -n "Please enter your choice:"; read optionr;
+echo -n "Please enter your choice: "; read optionr;
   case "$optionr" in
     "1")
     cp /system/etc/engengis/S35sd256 $READSPEED;
@@ -840,7 +840,7 @@ elif [ $(cat $GOVERNOR | grep "# Lulzactive governor" | wc -l) -gt 0 ]; then
 fi;
 fi;
 echo
-echo -n "Please enter your choice:"; read optiong;
+echo -n "Please enter your choice: "; read optiong;
   case "$optiong" in
     "1")
     if [ $(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors | grep "conservative" | wc -l) -gt 0 ]; then
@@ -1010,124 +1010,37 @@ echo "------------------------"
 echo "Engengis.Delta" 
 echo "------------------------"
 echo
-echo " 1 - Set dpi to 240 (hdpi)"
-echo " 2 - Set dpi to 220 (hdpi)"
-echo " 3 - Set dpi to 200 (hdpi)"
-echo " 4 - Set dpi to 182 (hdpi)"
-echo
-echo " 5 - Set dpi to 160 (mdpi)"
-echo " 6 - Set dpi to 140 (mdpi)"
-echo
+echo " 1 - Set dpi value"
 echo " b - Back"
 echo
 echo "--------------------------------"
 echo "Current:`cat $BPROP | grep "ro.sf.lcd_density=*"`"
 echo
-echo -n "Please enter your choice:"; read changedpi;
+echo -n "Please enter your choice: "; read changedpi;
 case "$changedpi" in
-  "1")
-  if [ $(cat $BPROP | grep "ro.sf.lcd_density=*" | wc -l) -gt 0 ]; then
-       sed -i '/ro.sf.lcd_density=*/ d' $BPROP;
-       echo "ro.sf.lcd_density=240" >> $BPROP;
-       echo
-       echo "Set dpi to 240"
-       echo "Phone will reboot in a few seconds!"
-       sleep 3
-       reboot
-  else
-       echo
-       echo "Operation failed!"
-       echo "It seems your device is not supported for DPI changes"
-       sleep 3
-       dpimenu;
-  fi;
-  ;;
-  "2")
-  if [ $(cat $BPROP | grep "ro.sf.lcd_density=*" | wc -l) -gt 0 ]; then
-       sed -i '/ro.sf.lcd_density=*/ d' $BPROP;
-       echo "ro.sf.lcd_density=220" >> $BPROP;
-       echo
-       echo "Set dpi to 220"
-       echo "Phone will reboot in a few seconds!"
-       sleep 3
-       reboot
-  else
-       echo
-       echo "Operation failed!"
-       echo "It seems your device is not supported for DPI changes"
-       sleep 3
-       dpimenu;
-  fi;
-  ;;
-  "3")
-  if [ $(cat $BPROP | grep "ro.sf.lcd_density=*" | wc -l) -gt 0 ]; then
-       sed -i '/ro.sf.lcd_density=*/ d' $BPROP;
-       echo "ro.sf.lcd_density=200" >> $BPROP;
-       echo
-       echo "Set dpi to 200"
-       echo "Phone will reboot in a few seconds!"
-       sleep 3
-       reboot
-  else
-       echo
-       echo "Operation failed!"
-       echo "It seems your device is not supported for DPI changes"
-       sleep 3
-       dpimenu;
-  fi;
-  ;;
-  "4")
-  if [ $(cat $BPROP | grep "ro.sf.lcd_density=*" | wc -l) -gt 0 ]; then
-       sed -i '/ro.sf.lcd_density=*/ d' $BPROP;
-       echo "ro.sf.lcd_density=182" >> $BPROP;
-       echo
-       echo "Set dpi to 182"
-       echo "Phone will reboot in a few seconds!"
-       sleep 3
-       reboot
-  else
-       echo
-       echo "Operation failed!"
-       echo "It seems your device is not supported for DPI changes"
-       sleep 3
-       dpimenu;
-  fi;
-  ;;
-  "5")
-  if [ $(cat $BPROP | grep "ro.sf.lcd_density=*" | wc -l) -gt 0 ]; then
-       sed -i '/ro.sf.lcd_density=*/ d' $BPROP;
-       echo "ro.sf.lcd_density=160" >> $BPROP;
-       echo
-       echo "Set dpi to 160"
-       echo "Phone will reboot in a few seconds!"
-       sleep 3
-       reboot
-  else
-       echo
-       echo "Operation failed!"
-       echo "It seems your device is not supported for DPI changes"
-       sleep 3
-       dpimenu;
-  fi;
-  ;;
-  "6")
-  if [ $(cat $BPROP | grep "ro.sf.lcd_density=*" | wc -l) -gt 0 ]; then
-       sed -i '/ro.sf.lcd_density=*/ d' $BPROP;
-       echo "ro.sf.lcd_density=140" >> $BPROP;
-       echo
-       echo "Set dpi to 140"
-       echo "Phone will reboot in a few seconds!"
-       sleep 3
-       reboot
-  else
-       echo
-       echo "Operation failed!"
-       echo "It seems your device is not supported for DPI changes"
-       sleep 3
-       dpimenu;
-  fi;
-  ;;
+  "1") clear; setdpi;;
   "b" | "B") clear; entry;;
+esac
+}
+
+setdpi () {
+echo
+echo "Please enter your dpi value: "; read dpiinput
+echo
+echo "Your dpi value will be set to: $dpiinput"
+echo "Are you sure?"
+echo "[y/n]"
+read dpioption
+case "$dpioption" in
+  "y" | "Y")
+  sed -i '/ro.sf.lcd_density=*/ d' $BPROP;
+  echo "ro.sf.lcd_density=$dpiinput" >> $BPROP;
+  echo
+  echo "Set dpi to $dpiinput"
+  echo "Phone will reboot in a few seconds!"
+  sleep 3
+  reboot;;
+  "n" | "N") clear; dpimenu;;
 esac
 }
 
@@ -1182,7 +1095,7 @@ echo
 echo " r - Reboot (apply changes)"
 echo " b - Back"
 echo
-echo -n "Please enter your choice:"; read buildprop;
+echo -n "Please enter your choice: "; read buildprop;
 case "$buildprop" in
     "1")
     if [ $(cat $BPROP | grep "debug.sf.hw=0" | wc -l) -gt 0 ]; then
@@ -1337,7 +1250,7 @@ echo "  9 - Reset engengis"
 echo " 10 - Version information"
 echo " b - Back"
 echo
-echo -n "Please enter your choice:"; read menu;
+echo -n "Please enter your choice: "; read menu;
   case "$menu" in
     "1")
     echo "Do you want to wipe init.d folder?"
@@ -1742,11 +1655,15 @@ echo
 if [ -e $RAMSCRIPT ]; then
      echo " 1 - Disable systemtweak"
 else
-     echo " 1 - Configure systemtweak"
+     echo " 1 - Enable systemtweak"
+fi;
+if [ -e $RAMSCRIPT ]; then
+     echo " 2 - Configure systemtweak (normal)"
+     echo " 3 - Configure systemtweak (advanced users)"
 fi;
 echo " b - Back"
 echo
-echo -n "Please enter your choice:"; read rammain;
+echo -n "Please enter your choice: "; read rammain;
 case "$rammain" in
   "1")
   if [ -e $RAMSCRIPT ]; then
@@ -1755,10 +1672,48 @@ case "$rammain" in
   else 
        cp /system/etc/engengis/S00ramscript $RAMSCRIPT
        chmod 777 $RAMSCRIPT
-       ramscriptconfigswap;
+       ramscriptconfig;
   fi;;
+  "2") ramscriptconfigswap;;
+  "3") ramscriptconfigadvanced;;
   "b" | "B") ramscriptconfigend;;
 esac
+}
+
+ramscriptconfigadvanced () {
+clear
+echo
+echo "------------------------"
+echo "Engengis.Delta" 
+echo "------------------------"
+echo
+echo " NOTICE! only numbers allowed!"
+echo
+echo -n "Please enter a value for swappiness: "; read swappinessinput;
+echo "if [ -e /proc/sys/vm/swappiness ]; then
+      echo "$swappinessinput" > /proc/sys/vm/swappiness
+fi;" >> $RAMSCRIPT
+echo -n "Please enter a value for vfs_cache_pressure: "; read vfscachepressureinput;
+echo "if [ -e /proc/sys/vm/vfs_cache_pressure ]; then
+      echo "$vfscachepressureinput" > /proc/sys/vm/vfs_cache_pressure
+fi;" >> $RAMSCRIPT
+echo -n "Please enter a value for dirty_ratio: "; read dirtyratioinput;
+echo "if [ -e /proc/sys/vm/dirty_ratio ]; then
+      echo "$dirtyratioinput" > /proc/sys/vm/dirty_ratio
+fi;" >> $RAMSCRIPT
+echo -n "Please enter a value for dirty_background_ratio: "; read dirtybackgroundratioinput;
+echo "if [ -e /proc/sys/vm/dirty_background_ratio ]; then
+      echo "$dirtybackgroundratioinput" > /proc/sys/vm/dirty_background_ratio
+fi;" >> $RAMSCRIPT
+echo -n "Please enter a value for dirty_expire_centisecs: "; read dirtyexpirecentisecsinput;
+echo "if [ -e /proc/sys/vm/dirty_expire_centisecs ]; then
+      echo "$dirtyexpirecentisecsinput" > /proc/sys/vm/dirty_expire_centisecs
+fi;" >> $RAMSCRIPT
+echo -n "Please enter a value for dirty_writeback_centisecs: "; read dirtywritebackcentisecsinput;
+echo "if [ -e /proc/sys/vm/dirty_writeback_centisecs ]; then
+      echo "$dirtywritebackcentisecsinput" > /proc/sys/vm/dirty_writeback_centisecs
+fi;" >> $RAMSCRIPT
+ramscriptconfiglmk;
 }
 
 # -------------------------------------------------------------------------
@@ -1776,7 +1731,7 @@ echo " 2 - Swap Normal"
 echo " 3 - Swap None"
 echo " b - Device default"
 echo
-echo -n "Please enter your choice:"; read ramswap;
+echo -n "Please enter your choice: "; read ramswap;
 case "$ramswap" in
   "1") cat >> $RAMSCRIPT << EOF
 if [ -e /proc/sys/vm/swappiness ]; then
@@ -1824,7 +1779,7 @@ echo " 2 - Dirtyratio 75 - 50"
 echo " 3 - Dirtyratio 20 - 15"
 echo " b - Device default"
 echo
-echo -n "Please enter your choice:"; read ramdirty;
+echo -n "Please enter your choice: "; read ramdirty;
 case "$ramdirty" in
   "1") cat >> $RAMSCRIPT << EOF
 if [ -e /proc/sys/vm/dirty_ratio ]; then
@@ -1872,7 +1827,7 @@ echo " 2 - Expire/writeback = Performance"
 echo " 3 - Expire/writeback = Normal"
 echo " b - Device default"
 echo
-echo -n "Please enter your choice:"; read ramwriteback;
+echo -n "Please enter your choice: "; read ramwriteback;
 case "$ramwriteback" in
   "1") cat >> $RAMSCRIPT << EOF
 if [ -e /proc/sys/vm/dirty_expire_centisecs ]; then
@@ -1920,7 +1875,7 @@ echo " 2 - LowMemoryKiller Performance"
 echo " 3 - LowMemoryKiller Normal"
 echo " b - Device default"
 echo
-echo -n "Please enter your choice:"; read ramlmk;
+echo -n "Please enter your choice: "; read ramlmk;
 case "$ramlmk" in
   "1") cat >> $RAMSCRIPT << EOF
 
@@ -1972,7 +1927,7 @@ echo
 echo " 1 - Back to Engengis main menu"
 echo " 2 - Back to Engengis systemtweaks menu"
 echo
-echo -n "Please enter your choice:"; read ramend;
+echo -n "Please enter your choice: "; read ramend;
 case "$ramend" in
   "1") clear; entry;;
   "2") clear; systemtweaks;;
