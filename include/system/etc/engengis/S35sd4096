@@ -3,7 +3,7 @@
 # Copyright (c) 2012, redmaner
 # Copyright (c) 2012, Others who found more read_ahead_kb locations
 
-# SD-Readspeed 4096
+# SD-Readspeed = 4096kb
 if [ -e /sys/devices/virtual/bdi/0:18/read_ahead_kb ]; then
       echo "4096" > /sys/devices/virtual/bdi/0:18/read_ahead_kb
 fi

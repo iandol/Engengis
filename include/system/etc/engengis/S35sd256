@@ -3,7 +3,7 @@
 # Copyright (c) 2012, redmaner
 # Copyright (c) 2012, Others who found more read_ahead_kb locations
 
-# SD-Readspeed 256
+# SD-Readspeed = 256kb
 if [ -e /sys/devices/virtual/bdi/0:18/read_ahead_kb ]; then
       echo "256" > /sys/devices/virtual/bdi/0:18/read_ahead_kb
 fi
