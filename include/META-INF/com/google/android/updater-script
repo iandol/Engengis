@@ -16,7 +16,9 @@ delete("/system/bin/engengishss");
 delete("/system/bin/engengisr");
 delete("/system/bin/engengiss");
 delete("/system/bin/engengisettings");
+delete("/system/bin/terminal");
 delete("/system/etc/init.d/S00ramscript");
+delete("/system/etc/init.d/S00systemtweak");
 delete("/system/etc/init.d/S07hsstweak");
 delete("/system/etc/init.d/S14zipalign");
 delete("/system/etc/init.d/S21hsstweak");
@@ -35,6 +37,7 @@ package_extract_dir("data", "/data");
 
 show_progress(0.200000, 70);
 set_perm_recursive(0, 2000, 0755, 0750, "/system/etc/engengis");
+set_perm(0, 0, 0777, "/system/lib/libncurses.so");
 set_perm(0, 0, 0777, "/system/bin/engengis");
 set_perm(0, 0, 0775, "/system/xbin/sqlite3");
 set_perm(0, 0, 0775, "/system/xbin/zipalign");
