@@ -2,21 +2,22 @@
 Engengis.Delta_build-46
 -------------------------------------------------------------------------------------------------------------
 - Initial rootzwiki release
-- Reorganized main code
+- Rewritten main code
+- Added support for all CPU governors
+- Added support for all DPI values
 - Added version info feature
-- Added configurable systemtweak
+- Added configurable systemtweak (simple and advanced)
 - Added support for MTD blocks
-- Added CPU governor tweaks for conservative and ondemand
 - Added force update option in OTA service
 - Added internetspeed tweaks
 - Added internetsecurirty tweaks
+- Added engengis terminal
 - Improved visaul appearance
 - Improved "Uninstall" feature
 - Improved recommanded settings
 - Improved restore settings
 - Fixed busybox bug
 - Fixed log bug 
-- Removed performance governor
 
 -------------------------------------------------------------------------------------------------------------
 Engengis.Charlie_build-44
