@@ -1439,7 +1439,7 @@ case "$rammain" in
   if [ -e $SYSTEMTWEAK ]; then
        rm -f $SYSTEMTWEAK
   else 
-       cp /system/etc/engengis/S00ramscript $SYSTEMTWEAK
+       cp /system/etc/engengis/S00systemtweak $SYSTEMTWEAK
        chmod 777 $SYSTEMTWEAK
   fi
   systemtweak_config;;
