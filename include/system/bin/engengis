@@ -7,7 +7,7 @@ BUILD=46
 CODENAME=Delta
 AUTHOR=Redmaner
 COMPILER=Redmaner
-STATUS=Beta
+STATUS=Beta2
 OFFICIAL=Yes
 
 # Engengis information
@@ -369,12 +369,16 @@ case "$option" in
   "t" | "T") 
   if [ -e /system/bin/terminal ]; then
        terminal;
-  else
+  elif [ -e /system/etc/engengis/terminal ]; then
        echo
        echo "Engengis terminal is disabled"
        echo "Do you want to enable it now?"
        echo "[y/n]"
        read engengisterminal
+  else
+       echo "Terminal is not supported by your build"
+       sleep 2
+       entry;
   fi;;
   "u" | "U")
   if [ $(cat $CONFIG | grep "otasupport=on" | wc -l) -gt 0 ]; then
@@ -397,7 +401,7 @@ case "$engengisterminal" in
   echo 
   echo "Terminal enabled"
   sleep 2
-  terminal;;
+  entry;;
   "n" | "N") entry;;
 esac
 }
@@ -1519,7 +1523,7 @@ if [ -e /proc/sys/vm/swappiness ]; then
       echo "0" > /proc/sys/vm/swappiness
 fi;
 if [ -e /proc/sys/vm/vfs_cache_pressure ]; then
-      echo "25" > /proc/sys/vm/vfs_cache_pressure
+      echo "10" > /proc/sys/vm/vfs_cache_pressure
 fi;
 EOF
   systemtweak_config_dirtyratio;;
@@ -1534,9 +1538,9 @@ echo "------------------------"
 echo "Engengis.Delta" 
 echo "------------------------"
 echo
-echo " 1 - Dirtyratio 90 - 65"
+echo " 1 - Dirtyratio 90 - 70"
 echo " 2 - Dirtyratio 75 - 50"
-echo " 3 - Dirtyratio 20 - 15"
+echo " 3 - Dirtyratio 20 - 12"
 echo " b - Device default"
 echo
 echo -n "Please enter your choice: "; read ramdirty;
@@ -1547,7 +1551,7 @@ if [ -e /proc/sys/vm/dirty_ratio ]; then
       echo "90" > /proc/sys/vm/dirty_ratio
 fi;
 if [ -e /proc/sys/vm/dirty_background_ratio ]; then
-      echo "65" > /proc/sys/vm/dirty_background_ratio
+      echo "70" > /proc/sys/vm/dirty_background_ratio
 fi;
 EOF
   systemtweak_config_writeback;;
@@ -1565,7 +1569,7 @@ if [ -e /proc/sys/vm/dirty_ratio ]; then
       echo "20" > /proc/sys/vm/dirty_ratio
 fi;
 if [ -e /proc/sys/vm/dirty_background_ratio ]; then
-      echo "15" > /proc/sys/vm/dirty_background_ratio
+      echo "12" > /proc/sys/vm/dirty_background_ratio
 fi;
 EOF
   systemtweak_config_writeback;;
