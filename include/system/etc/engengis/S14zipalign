@@ -1,46 +1,74 @@
 #!/system/bin/sh
-# Copyright (c) 2012, darkyy
-
-# Changelog:
-# 1.2 (17/1/11) Added /data/zipalign.db file for faster apk check (ninpo,Bo$s)
-# 1.1 (12/1/09) Switched to zipalign -c 4 to check the apk instead of MD5 (oknowton)
-# 1.0 (11/30/09) Original
+# Automatic ZipAlign by Wes Garner
+# ZipAlign files in /data that have not been previously ZipAligned (using md5sum)
+# Thanks to oknowton for the changes
+# Credits to doctorcete from Hyperdroid team for adding system/app and /system/framework
 
 LOG_FILE=/data/zipalign.log
-ZIPALIGNDB=/data/zipalign.db
 
-if [ -e $LOG_FILE ]; then
-	rm $LOG_FILE;
+if [ -n $zipalign ] && [ $zipalign = "true" ];
+then
+busybox mount -o remount,rw /;
+busybox mount -o remount,rw -t auto /system;
+busybox mount -o remount,rw -t auto /data;
 fi;
+busybox mount -t tmpfs -o size=70m none /mnt/tmp;
+echo "Starting Automatic ZipAlign " `date` | tee -a $LOG_FILE;
 
-if [ ! -f $ZIPALIGNDB ]; then
-	touch $ZIPALIGNDB;
-fi;
-
-echo "Starting FV Automatic ZipAlign $( date +"%m-%d-%Y %H:%M:%S" )" | tee -a $LOG_FILE
-
-for DIR in /system/app /data/app ; do
-	cd $DIR
-	for APK in *.apk ; do
-		if [ $APK -ot $ZIPALIGNDB ] && [ $(grep "$DIR/$APK" $ZIPALIGNDB|wc -l) -gt 0 ] ; then
-			echo "Already checked: $DIR/$APK" | tee -a $LOG_FILE
-		else
-			ZIPCHECK=`zipalign -c -v 4 $APK | grep FAILED | wc -l`;
-			if [ $ZIPCHECK == "1" ]; then
-				echo "Now aligning: $DIR/$APK" | tee -a $LOG_FILE
-				zipalign -v -f 4 $APK /sdcard/download/$APK
-				busybox mount -o rw,remount /system
-				cp -f -p /sdcard/download/$APK $APK
-				grep "$DIR/$APK" $ZIPALIGNDB > /dev/null || echo $DIR/$APK >> $ZIPALIGNDB
+    if [ -e $LOG_FILE ]; then
+    	rm $LOG_FILE;
+    fi;
+    	
+echo "Starting Automatic ZipAlign $( date +"%m-%d-%Y %H:%M:%S" )" | tee -a $LOG_FILE;
+    for apk in /data/app/*.apk ; do
+	zipalign -c 4 $apk;
+	ZIPCHECK=$?;
+	if [ $ZIPCHECK -eq 1 ]; then
+		echo ZipAligning $(basename $apk)  | tee -a $LOG_FILE;
+		zipalign -f 4 $apk /cache/$(basename $apk);
+			if [ -e /cache/$(basename $apk) ]; then
+				cp -f -p /cache/$(basename $apk) $apk  | tee -a $LOG_FILE;
+				rm /cache/$(basename $apk);
 			else
-				echo "Already aligned: $DIR/$APK" | tee -a $LOG_FILE
-				grep "$DIR/$APK" $ZIPALIGNDB > /dev/null || echo $DIR/$APK >> $ZIPALIGNDB
-			fi
-		fi
-	done
-done
+				echo ZipAligning $(basename $apk) Failed  | tee -a $LOG_FILE;
+			fi;
+	else
+		echo ZipAlign already completed on $apk  | tee -a $LOG_FILE;
+	fi;
+       done;
 
-busybox mount -o ro,remount /system
-touch $ZIPALIGNDB
-echo "Automatic ZipAlign finished at $( date +"%m-%d-%Y %H:%M:%S" )" | tee -a $LOG_FILE
+for apk in /system/app/*.apk ; do
+	zipalign -c 4 $apk;
+	ZIPCHECK=$?;
+	if [ $ZIPCHECK -eq 1 ]; then
+		echo ZipAligning $(basename $apk)  | tee -a $LOG_FILE;
+		zipalign -f 4 $apk /cache/$(basename $apk);
+			if [ -e /cache/$(basename $apk) ]; then
+				cp -f -p /cache/$(basename $apk) $apk  | tee -a $LOG_FILE;
+				rm /cache/$(basename $apk);
+			else
+				echo ZipAligning $(basename $apk) Failed  | tee -a $LOG_FILE;
+			fi;
+	else
+		echo ZipAlign already completed on $apk  | tee -a $LOG_FILE;
+	fi;
+       done;
 
+for apk in /system/framework/*.apk ; do
+	zipalign -c 4 $apk;
+	ZIPCHECK=$?;
+	if [ $ZIPCHECK -eq 1 ]; then
+		echo ZipAligning $(basename $apk)  | tee -a $LOG_FILE;
+		zipalign -f 4 $apk /cache/$(basename $apk);
+			if [ -e /cache/$(basename $apk) ]; then
+				cp -f -p /cache/$(basename $apk) $apk  | tee -a $LOG_FILE;
+				rm /cache/$(basename $apk);
+			else
+				echo ZipAligning $(basename $apk) Failed  | tee -a $LOG_FILE;
+			fi;
+	else
+		echo ZipAlign already completed on $apk  | tee -a $LOG_FILE;
+	fi;
+       done;
+
+echo "Automatic ZipAlign finished at $( date +"%m-%d-%Y %H:%M:%S" )" | tee -a $LOG_FILE;

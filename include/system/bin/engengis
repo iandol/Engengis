@@ -4,7 +4,7 @@
 
 # Version information
 BUILD=46 
-CODENAME=Delta
+CODENAME=Delta3
 AUTHOR=Redmaner
 COMPILER=Redmaner
 STATUS=Beta2
@@ -14,11 +14,17 @@ OFFICIAL=Yes
 LOG=/data/engengis.log
 CONFIG=/data/engengis.conf
 SETTINGS=/data/settings.conf
+SYSTEMTWEAK=/system/etc/init.d/S00systemtweak
+HSSTWEAK=/system/etc/init.d/S07hsstweak
+ZIPALIGN=/system/etc/init.d/S14zipalign
+INTSPEED=/system/etc/init.d/S56internet
+INTSECURE=/system/etc/init.d/S63internetsecurity
+DROPCACHES=/system/etc/init.d/S49dropcaches
 SCHEDULER=/system/etc/init.d/S28scheduler
 READSPEED=/system/etc/init.d/S35sdreadspeed
+CPUGTWEAK=/system/etc/init.d/S21governortweak
 GOVERNOR=/system/etc/init.d/S42cpugovernor
 BPROP=/system/build.prop
-SYSTEMTWEAK=/system/etc/init.d/S00systemtweak
 
 # -------------------------------------------------------------------------
 # Check requirements to run engengis
@@ -78,15 +84,13 @@ fi;
 if [ -e $SETTINGS ]; then
     echo "Settings file = Ok" >> $LOG;
 else
-    cat > $SETTINGS << EOF
-systemtweak=off
-zipalignduringboot=off
-dropcachesduringboot=off
-internetspeed=off
-internetsecurity=off
-ioscheduler=default
-sdreadspeed=default
-EOF
+    touch $SETTINGS
+    echo "zipalignduringboot=off" >> $SETTINGS
+    echo "dropcachesduringboot=off" >> $SETTINGS
+    echo "internetspeed=off" >> $SETTINGS
+    echo "ioscheduler=default" >> $SETTINGS
+    echo "sdreadspeed=default" >> $SETTINGS
+    echo "governortweak=off" >> $SETTINGS
     echo "Settings file created" >> $LOG;
     echo "Settings file created"
     sleep 1
@@ -95,15 +99,15 @@ fi;
 if [ -e $CONFIG ]; then
     echo "Configuration file = Ok" >> $LOG;
 else
-    cat > $CONFIG << EOF
-otasupport=off
-status=firstboot
-EOF
+    touch $CONFIG
+    echo "otasupport=off" >> $CONFIG
+    echo "status=firstboot" >> $CONFIG
     echo "Configuration file created" >> $LOG;
     echo "Created configuration file"
     sleep 1
 fi;
 
+clear
 if [ $(cat $CONFIG | grep "disclaimer=accepted" | wc -l) -gt 0 ]; then
      echo "Disclaimer = Ok" >> $LOG;
 else
@@ -154,6 +158,30 @@ else
     echo "version=delta" >> $CONFIG;
 fi;
 
+user () {
+clear
+if [ $(cat $CONFIG | grep "user=normal" | wc -l) -gt 0 ]; then
+     echo "Normal user detected" >> $LOG
+elif [ $(cat $CONFIG | grep "user=advanced" | wc -l) -gt 0 ]; then
+     echo "Advanced user detected >> $LOG"
+else
+     echo "What for kind off user are you?"
+     echo
+     echo " 1 - Normal user (recommended)"
+     echo " 2 - Advanced user"
+     echo
+     echo -n "Please enter your option: "; read useroption;
+fi;
+
+case "$useroption" in
+  "1")
+  sed -i '/user=*/ d' $CONFIG;
+  echo "user=normal" >> $CONFIG;;
+  "2")
+  sed -i '/user=*/ d' $CONFIG;
+  echo "user=advanced" >> $CONFIG;;
+esac
+}
 # -------------------------------------------------------------------------
 # Check status of engengis
 # -------------------------------------------------------------------------
@@ -179,20 +207,20 @@ fi;
 
 case "$firstboot" in
   "y" | "Y")
-  cp /system/etc/engengis/S14zipalign /system/etc/init.d/S14zipalign;
-  chmod 777 /system/etc/init.d/S14zipalign;
+  cp /system/etc/engengis/S14zipalign $ZIPALIGN;
+  chmod 777 $ZIPALIGN;
   sed -i '/zipalignduringboot=*/ d' $SETTINGS;
   echo "zipalignduringboot=on" >> $SETTINGS;
-  cp /system/etc/engengis/S49dropcaches /system/etc/init.d/S49dropcaches;
-  chmod 777 /system/etc/init.d/S49dropcaches;
+  cp /system/etc/engengis/S49dropcaches $DROPCACHES;
+  chmod 777 $DROPCACHES;
   sed -i '/dropcachesduringboot=*/ d' $SETTINGS;
   echo "dropcachesduringboot=on" >> $SETTINGS;
   cp /system/etc/engengis/S35sd256 $READSPEED;
   chmod 777 $READSPEED;
   sed -i '/sdreadspeed=*/ d' $SETTINGS;
   echo "sdreadspeed=256" >> $SETTINGS;
-  cp /system/etc/engengis/S56internet /system/etc/init.d/S56internet;
-  chmod 777 /system/etc/init.d/S56internet;
+  cp /system/etc/engengis/S56internet $INTSPEED;
+  chmod 777 $INTSPEED;
   sed -i '/internetspeed=*/ d' $SETTINGS;
   echo "internetspeed=on" >> $SETTINGS;
   clear
@@ -242,20 +270,24 @@ fi;
 case "$updatedrestore" in
   "y" | "Y")
   if [ $(cat $SETTINGS | grep "zipalignduringboot=on" | wc -l) -gt 0 ]; then
-       cp /system/etc/engengis/S14zipalign /system/etc/init.d/S14zipalign;
-       chmod 777 /system/etc/init.d/S14zipalign;
+       cp /system/etc/engengis/S14zipalign $ZIPALIGN;
+       chmod 777 $ZIPALIGN;
   fi;
   if [ $(cat $SETTINGS | grep "dropcachesduringboot=on" | wc -l) -gt 0 ]; then
-       cp /system/etc/engengis/S49dropcaches /system/etc/init.d/S49dropcaches;
-       chmod 777 /system/etc/init.d/S49dropcaches;
+       cp /system/etc/engengis/S49dropcaches $DROPCACHES;
+       chmod 777 $DROPCACHES;
   fi;
   if [ $(cat $SETTINGS | grep "internetspeed=on" | wc -l) -gt 0 ]; then
-       cp /system/etc/engengis/S56internet /system/etc/init.d/S56internet;
-       chmod 777 /system/etc/init.d/S56internet;
+       cp /system/etc/engengis/S56internet $INTSPEED;
+       chmod 777 $INTSPEED;
   fi;
   if [ $(cat $SETTINGS | grep "internetsecurity=on" | wc -l) -gt 0 ]; then
-       cp /system/etc/engengis/S63internetsecurity /system/etc/init.d/S63internetsecurity;
-       chmod 777 /system/etc/init.d/S63internetsecurity;
+       cp /system/etc/engengis/S63internetsecurity $INTSECURE;
+       chmod 777 $INTSECURE;
+  fi;
+  if [ $(cat $SETTINGS | grep "governortweak=on" | wc -l) -gt 0 ]; then
+       cp /system/etc/engengis/S21governortweak $CPUGTWEAK;
+       chmod 777 $CPUGTWEAK;
   fi;
   if [ $(cat $SETTINGS | grep "ioscheduler=bfq" | wc -l) -gt 0 ]; then
        cp /system/etc/engengis/S28bfqscheduler $SCHEDULER;
@@ -303,15 +335,13 @@ case "$updatedrestore" in
   "n" | "N")
   clear
   rm -f $SETTINGS
-  cat > $SETTINGS << EOF
-systemtweak=off
-zipalignduringboot=off
-dropcachesduringboot=off
-internetspeed=off
-internetsecurity=off
-ioscheduler=default
-sdreadspeed=default
-EOF
+  touch $SETTINGS
+  echo "zipalignduringboot=off" >> $SETTINGS
+  echo "dropcachesduringboot=off" >> $SETTINGS
+  echo "internetspeed=off" >> $SETTINGS
+  echo "ioscheduler=default" >> $SETTINGS
+  echo "sdreadspeed=default" >> $SETTINGS
+  echo "governortweak=off" >> $SETTINGS
   sed -i '/status=*/ d' $CONFIG;
   echo "status=normal" >> $CONFIG;
   systemtweakoption;;
@@ -417,23 +447,23 @@ echo "Engengis.Delta"
 echo "------------------------"
 echo
 echo " 1 - Configure systemtweak" 
-if [ -e /system/etc/init.d/S14zipalign ]; then
+if [ -e $ZIPALIGN ]; then
       echo " 2 - Disable zipalign during boot" 
 else
       echo " 2 - Enable zipalign during boot" 
 fi;
 echo " 3 - Optimize sqlite db's"
-if [ -e /system/etc/init.d/S49dropcaches ]; then
+if [ -e $DROPCACHES ]; then
       echo " 4 - Disable drop caches during boot" 
 else
       echo " 4 - Enable drop caches during boot" 
 fi;
-if [ -e /system/etc/init.d/S56internet ]; then
+if [ -e $INTSPEED ]; then
       echo " 5 - Disable internet speed tweaks" 
 else
       echo " 5 - Enable internet speed tweaks" 
 fi;
-if [ -e /system/etc/init.d/S63internetsecurity ]; then
+if [ -e $INTSECURE ]; then
       echo " 6 - Disable internet security tweaks" 
 else
       echo " 6 - Enable internet security tweaks" 
@@ -444,20 +474,20 @@ echo -n "Please enter your choice: "; read tweaks;
 case "$tweaks" in
   "1") clear; systemtweak_config;;
   "2")
-  if [ -e /system/etc/init.d/S14zipalign ]; then
-        rm -f /system/etc/init.d/S14zipalign
-        rm -f /data/zipalign.db
-        rm -f /data/zipalign.log
+  if [ -e $ZIPALIGN ]; then
+        rm -f $ZIPALIGN;
+        rm -f /data/zipalign.db;
+        rm -f /data/zipalign.log;
         sed -i '/zipalignduringboot=*/ d' $SETTINGS;
         echo "zipalignduringboot=off" >> $SETTINGS;
         sleep 2
         systemtweaksmenu;
   else
-        cp /system/etc/engengis/S14zipalign /system/etc/init.d/S14zipalign
-        rm -f /data/zipalign.db
-        rm -f /data/zipalign.log
-        chmod 777 /system/xbin/zipalign
-        chmod 777 /system/etc/init.d/S14zipalign
+        cp /system/etc/engengis/S14zipalign $ZIPALIGN;
+        rm -f /data/zipalign.db;
+        rm -f /data/zipalign.log;
+        chmod 777 /system/xbin/zipalign;
+        chmod 777 $ZIPALIGN;
         sed -i '/zipalignduringboot=*/ d' $SETTINGS;
         echo "zipalignduringboot=on" >> $SETTINGS;
         sleep 2
@@ -503,45 +533,45 @@ case "$tweaks" in
 	done;
   systemtweaksmenu;;
   "4")
-  if [ -e /system/etc/init.d/S49dropcaches ]; then 
-        rm -f /system/etc/init.d/S49dropcaches
+  if [ -e $DROPCACHES ]; then 
+        rm -f $DROPCACHES;
         sed -i '/dropcachesduringboot=*/ d' $SETTINGS;
         echo "dropcachesduringboot=off" >> $SETTINGS;
         sleep 2
         systemtweaksmenu;
   else
-        cp /system/etc/engengis/S49dropcaches /system/etc/init.d/S49dropcaches
-        chmod 777 /system/etc/init.d/S49dropcaches
+        cp /system/etc/engengis/S49dropcaches $DROPCACHES;
+        chmod 777 $DROPCACHES;
         sed -i '/dropcachesduringboot=*/ d' $SETTINGS;
         echo "dropcachesduringboot=on" >> $SETTINGS;
         sleep 2
         systemtweaksmenu;
   fi;;
   "5")
-  if [ -e /system/etc/init.d/S56internet ]; then 
-        rm -f /system/etc/init.d/S56internet
+  if [ -e $INTSPEED ]; then 
+        rm -f $INTSPEED;
         sed -i '/internetspeed=*/ d' $SETTINGS;
         echo "internetspeed=off" >> $SETTINGS;
         sleep 2
         systemtweaksmenu;
   else
-        cp /system/etc/engengis/S56internet /system/etc/init.d/S56internet
-        chmod 777 /system/etc/init.d/S56internet
+        cp /system/etc/engengis/S56internet $INTSPEED;
+        chmod 777 $INTSPEED;
         sed -i '/internetspeed=*/ d' $SETTINGS;
         echo "internetspeed=on" >> $SETTINGS;
         sleep 2
         systemtweaksmenu;
   fi;;
   "6")
-  if [ -e /system/etc/init.d/S63internetsecurity ]; then 
-        rm -f /system/etc/init.d/S63internetsecurity
+  if [ -e $INTSECURE ]; then 
+        rm -f $INTSECURE;
         sed -i '/internetsecurity=*/ d' $SETTINGS;
         echo "internetsecurity=off" >> $SETTINGS;
         sleep 2
         systemtweaksmenu;
   else
-        cp /system/etc/engengis/S63internetsecurity /system/etc/init.d/S63internetsecurity
-        chmod 777 /system/etc/init.d/S63internetsecurity
+        cp /system/etc/engengis/S63internetsecurity $INTSECURE;
+        chmod 777 $INTSECURE;
         sed -i '/internetsecurity=*/ d' $SETTINGS;
         echo "internetsecurity=on" >> $SETTINGS;
         sleep 2
@@ -730,9 +760,14 @@ echo "------------------------"
 echo "Engengis.Delta" 
 echo "------------------------"
 echo
-echo " 1 - Set governor"
+if [ -e $CPUGTWEAK ]; then
+     echo " 1 - Disable governortweak"
+else
+     echo " 1 - Enable governortweak"
+fi;
+echo " 2 - Set governor"
 if [ -e $GOVERNOR ]; then
-     echo " 2 - Remove governor settings"
+     echo " 3 - Remove governor settings"
 fi;
 echo " b - Back"
 if [ -e $GOVERNOR ]; then
@@ -744,8 +779,23 @@ echo
 echo -n "Please enter your choice: "; read optiong;
 
 case "$optiong" in
-  "1") setgovernor;;
-  "2")
+  "1")
+  if [ -e $CPUGTWEAK ]; then 
+        rm -f $CPUGTWEAK;
+        sed -i '/governortweak=*/ d' $SETTINGS;
+        echo "governortweak=off" >> $SETTINGS;
+        sleep 2
+        governormenu;
+  else
+        cp /system/etc/engengis/S21governortweak $CPUGTWEAK;
+        chmod 777 $CPUGTWEAK;
+        sed -i '/governortweak=*/ d' $SETTINGS;
+        echo "governortweak=on" >> $SETTINGS;
+        sleep 2
+        governormenu;
+  fi;;
+  "2") setgovernor;;
+  "3")
   if [ -e $GOVERNOR ]; then
        rm -f $GOVERNOR
   fi;
@@ -1027,7 +1077,7 @@ echo
 echo " 1 - Wipe init.d folder"
 echo " 2 - Disable all tweaks"
 echo " 3 - Load tweaks from settings file"
-echo " 4 - Enable recommanded settings"
+echo " 4 - Enable recommended settings"
 if [ $(cat $CONFIG | grep "otasupport=on" | wc -l) -gt 0 ]; then
      echo " 5 - Disable OTA update support"
 else
@@ -1102,26 +1152,30 @@ case "$disablealltweaksoption" in
       rm -f $SYSTEMTWEAK
       echo "Systemtweak DISABLED"
   fi;
-  if [ -e /system/etc/init.d/S14zipalign ]; then
-      rm -f /system/etc/init.d/S14zipalign;
+  if [ -e $HSSTWEAK]; then
+      rm -f $HSSTWEAK
+      echo "HSS Systemtweak DISABLED"
+  fi;
+  if [ -e $ZIPALIGN ]; then
+      rm -f $ZIPALIGN;
       echo "Zipalign during boot DISABLED";
       sed -i '/zipalignduringboot=*/ d' $SETTINGS;
       echo "zipalignduringboot=off" >> $SETTINGS;
   fi;
-  if [ -e /system/etc/init.d/S49dropcaches ]; then
-      rm -f /system/etc/init.d/S49dropcaches;
+  if [ -e $DROPCACHES ]; then
+      rm -f $DROPCACHES;
       echo "Drop caches during boot DISABLED";
       sed -i '/dropcachesduringboot=*/ d' $SETTINGS;
       echo "dropcachesduringboot=off" >> $SETTINGS;
   fi;
-  if [ -e /system/etc/init.d/S56internet ]; then
-      rm -f /system/etc/init.d/S56internet;
+  if [ -e $INTSPEED ]; then
+      rm -f $INTSPEED;
       echo "Internetspeed tweak DISABLED";
       sed -i '/internetspeed=*/ d' $SETTINGS;
       echo "internetspeed=off" >> $SETTINGS;
   fi;
-  if [ -e /system/etc/init.d/S63internetsecurity ]; then
-      rm -f /system/etc/init.d/S63internetsecurity;
+  if [ -e $INTSECURE ]; then
+      rm -f $INTSECURE;
       echo "Internetsecurity tweak DISABLED";
       sed -i '/internetsecurity=*/ d' $SETTINGS;
       echo "internetsecurity=off" >> $SETTINGS;
@@ -1138,12 +1192,17 @@ case "$disablealltweaksoption" in
       sed -i '/sdreadspeed=*/ d' $SETTINGS;
       echo "sdreadspeed=default" >> $SETTINGS;
   fi;
+  if [ -e $CPUGTWEAK ]; then
+      rm -f $CPUGTWEAK;
+      echo "Governortweak DISABLED";
+      sed -i '/governortweak=*/ d' $SETTINGS;
+      echo "governortweak=off" >> $SETTINGS;
+  fi;
   if [ -e $GOVERNOR ]; then
       rm -f $GOVERNOR;
       echo "Removed governor settings";
-      sed -i '/cpugovernor=*/ d' $SETTINGS;
-      echo "cpugovernor=default" >> $SETTINGS;
   fi;
+  sleep 3
   clear; settingsmenu;;
   "n" | "N") clear; settingsmenu;;
 esac
@@ -1162,20 +1221,24 @@ read restoretweaks
 case "$restoretweaks" in
   "y" | "Y")
   if [ $(cat $SETTINGS | grep "zipalignduringboot=on" | wc -l) -gt 0 ]; then
-       cp /system/etc/engengis/S14zipalign /system/etc/init.d/S14zipalign;
-       chmod 777 /system/etc/init.d/S14zipalign;
+       cp /system/etc/engengis/S14zipalign $ZIPALIGN;
+       chmod 777 $ZIPALIGN;
   fi;
   if [ $(cat $SETTINGS | grep "dropcachesduringboot=on" | wc -l) -gt 0 ]; then
-       cp /system/etc/engengis/S49dropcaches /system/etc/init.d/S49dropcaches;
-       chmod 777 /system/etc/init.d/S49dropcaches;
+       cp /system/etc/engengis/S49dropcaches $DROPCACHES;
+       chmod 777 $DROPCACHES;
   fi;
   if [ $(cat $SETTINGS | grep "internetspeed=on" | wc -l) -gt 0 ]; then
-       cp /system/etc/engengis/S56internet /system/etc/init.d/S56internet;
-       chmod 777 /system/etc/init.d/S56internet;
+       cp /system/etc/engengis/S56internet $INTSPEED;
+       chmod 777 $INTSPEED;
   fi;
   if [ $(cat $SETTINGS | grep "internetsecurity=on" | wc -l) -gt 0 ]; then
-       cp /system/etc/engengis/S63internetsecurity /system/etc/init.d/S63internetsecurity;
-       chmod 777 /system/etc/init.d/S63internetsecurity;
+       cp /system/etc/engengis/S63internetsecurity $INTSECURE;
+       chmod 777 $INTSECURE;
+  fi;
+  if [ $(cat $SETTINGS | grep "governortweak=on" | wc -l) -gt 0 ]; then
+       cp /system/etc/engengis/S21governortweak $CPUGTWEAK;
+       chmod 777 $CPUGTWEAK;
   fi;
   if [ $(cat $SETTINGS | grep "ioscheduler=bfq" | wc -l) -gt 0 ]; then
        cp /system/etc/engengis/S28bfqscheduler $SCHEDULER;
@@ -1236,10 +1299,13 @@ read recommandedsettings
 case "$recommandedsettings" in
   "y" | "Y")
   rm -f $SETTINGS
+  rm -f /system/etc/init.d/S00systemtweak
   rm -f /system/etc/init.d/S00ramscript
   rm -f /system/etc/init.d/S07hsstweak
   rm -f /system/etc/init.d/S14zipalign
+  rm -f /system/etc/init.d/S21sqlite
   rm -f /system/etc/init.d/S21hsstweak
+  rm -f /system/etc/init.d/S21governortweak
   rm -f /system/etc/init.d/S28scheduler
   rm -f /system/etc/init.d/S35sdreadspeed
   rm -f /system/etc/init.d/S42cpugovernor
@@ -1247,24 +1313,25 @@ case "$recommandedsettings" in
   rm -f /system/etc/init.d/S56internet
   rm -f /system/etc/init.d/S63internetsecurity
   touch $SETTINGS
-  cp /system/etc/engengis/S14zipalign /system/etc/init.d/S14zipalign;
-  chmod 777 /system/etc/init.d/S14zipalign;
+  cp /system/etc/engengis/S14zipalign $ZIPALIGN;
+  chmod 777 $ZIPALIGN;
   sed -i '/zipalignduringboot=*/ d' $SETTINGS;
   echo "zipalignduringboot=on" >> $SETTINGS;
-  cp /system/etc/engengis/S49dropcaches /system/etc/init.d/S49dropcaches;
-  chmod 777 /system/etc/init.d/S49dropcaches;
+  cp /system/etc/engengis/S49dropcaches $DROPCACHES;
+  chmod 777 $DROPCACHES;
   sed -i '/dropcachesduringboot=*/ d' $SETTINGS;
   echo "dropcachesduringboot=on" >> $SETTINGS;
   cp /system/etc/engengis/S35sd256 $READSPEED;
   chmod 777 $READSPEED;
   sed -i '/sdreadspeed=*/ d' $SETTINGS;
   echo "sdreadspeed=256" >> $SETTINGS;
-  cp /system/etc/engengis/S56internet /system/etc/init.d/S56internet;
-  chmod 777 /system/etc/init.d/S56internet;
+  cp /system/etc/engengis/S56internet $INTSPEED;
+  chmod 777 $INTSPEED;
   sed -i '/internetspeed=*/ d' $SETTINGS;
   echo "internetspeed=on" >> $SETTINGS;
   echo "internetsecurity=off" >> $SETTINGS;
   echo "ioscheduler=default" >> $SETTINGS;
+  echo "governortweak=off" >> $SETTINGS
   clear
   echo "Recommanded tweaks are now ENABLED";
   sleep 2;  settingsmenu;;
@@ -1294,7 +1361,7 @@ case "$log" in
 esac
 }
 
-unintstallengengis () {
+uninstallengengis () {
 clear
 echo " 1 - Unistall engengis files on /system"
 echo " 2 - Unistall all engengis files (system + data)"
@@ -1304,11 +1371,13 @@ read engengis
 case "$engengis" in
   "1")
   rm -rf /system/etc/engengis
-  rm -f /system/etc/init.d/S00ramscript
   rm -f /system/etc/init.d/S00systemtweak
+  rm -f /system/etc/init.d/S00ramscript
   rm -f /system/etc/init.d/S07hsstweak
   rm -f /system/etc/init.d/S14zipalign
+  rm -f /system/etc/init.d/S21sqlite
   rm -f /system/etc/init.d/S21hsstweak
+  rm -f /system/etc/init.d/S21governortweak
   rm -f /system/etc/init.d/S28scheduler
   rm -f /system/etc/init.d/S35sdreadspeed
   rm -f /system/etc/init.d/S42cpugovernor
@@ -1329,11 +1398,13 @@ case "$engengis" in
   "2")
   rm -rf /system/etc/engengis
   rm -rf /sdcard/engengis
-  rm -f /system/etc/init.d/S00ramscript
   rm -f /system/etc/init.d/S00systemtweak
+  rm -f /system/etc/init.d/S00ramscript
   rm -f /system/etc/init.d/S07hsstweak
   rm -f /system/etc/init.d/S14zipalign
+  rm -f /system/etc/init.d/S21sqlite
   rm -f /system/etc/init.d/S21hsstweak
+  rm -f /system/etc/init.d/S21governortweak
   rm -f /system/etc/init.d/S28scheduler
   rm -f /system/etc/init.d/S35sdreadspeed
   rm -f /system/etc/init.d/S42cpugovernor
@@ -1360,14 +1431,23 @@ esac
 }
 
 resetengengis () {
-echo "This will remove all data from engengis!"
-echo "That means it reconfigures itself"
-echo "Do you want to proceed?"
-echo "[y/n]"
-read reset
+echo "There are two options you can choose"
+echo 
+echo " 1 - Reset usertype"
+echo " 2 - Reset all settings"
+echo " b - Back"
+echo
+echo "Please enter your choice: "; read reset;
 
 case "$reset" in
-  "y" | "Y")
+  "1")
+  sed -i '/user=*/ d' $CONFIG
+  echo
+  echo "Usertype has been reset"
+  echo "Engengis will reconfigure usertype in a few seconds."
+  sleep 2
+  user; settingsmenu;; 
+  "2")
   rm -f $LOG
   rm -f $CONFIG
   rm -f $SETTINGS
@@ -1384,10 +1464,10 @@ case "$reset" in
   rm -f /system/etc/init.d/S56internet
   rm -f /system/etc/init.d/S63internetsecurity
   echo "Removed data..."
-  echo "Engengis will restart in a few seconds."
+  echo "Engengis will reconfigure itself in a few seconds."
   sleep 2
-  engengis;;
-  "n" | "N") settingsmenu;;
+  check; user; firstboot; entry;;
+  "b" | "B") settingsmenu;;
 esac
 }
 
@@ -1424,12 +1504,16 @@ echo "------------------------"
 echo
 if [ -e $SYSTEMTWEAK ]; then
      echo " 1 - Disable systemtweak"
-else
-     echo " 1 - Enable systemtweak"
+elif [ -e $HSSTWEAK ]; then
+     echo " 1 - Disable HSS tweak"
+else 
+     echo " 1 - Enable systemtweak/hss"
 fi;
 if [ -e $SYSTEMTWEAK ]; then
      echo " 2 - Configure systemtweak (normal)"
-     echo " 3 - Configure systemtweak (advanced users)"
+     if [ $(cat $CONFIG | grep "user=advanced" | wc -l) -gt 0 ]; then
+          echo " 3 - Configure systemtweak (advanced users)"
+     fi;
 fi;
 echo " b - Back"
 echo
@@ -1437,20 +1521,41 @@ echo -n "Please enter your choice: "; read rammain;
 case "$rammain" in
   "1")
   if [ -e $SYSTEMTWEAK ]; then
-       rm -f $SYSTEMTWEAK
-  else 
-       cp /system/etc/engengis/S00systemtweak $SYSTEMTWEAK
-       chmod 777 $SYSTEMTWEAK
-  fi
-  systemtweak_config;;
+       rm -f $SYSTEMTWEAK; systemtweak_config;
+  elif [ -e $HSSTWEAK ]; then
+       rm -f $HSSTWEAK; systemtweak_config;
+  else
+       clear
+       echo "You can enable two types of systemtweaks"
+       echo
+       echo " 1 - Configureable systemtweak"
+       echo " 2 - HSS systemtweak"
+       echo
+       echo -n "Please enter your choise: "; read systemtweakoption;
+  fi;;
   "2") systemtweak_config_swap;;
   "3") systemtweak_config_advanced;;
   "b" | "B") systemtweak_config_end;;
 esac
+
+case "$systemtweakoption" in
+  "1") 
+   rm -f $HSSTWEAK
+   cp /system/etc/engengis/S00systemtweak $SYSTEMTWEAK
+   chmod 777 $SYSTEMTWEAK
+   systemtweak_config;;
+   "2")
+   rm -f $SYSTEMTWEAK
+   cp /system/etc/engengis/S07hsstweak $HSSTWEAK
+   chmod 777 $HSSTWEAK
+   systemtweak_config;;
+esac
+
 }
 
 systemtweak_config_advanced () {
 clear
+cp /system/etc/engengis/S00systemtweak $SYSTEMTWEAK
 echo
 echo "------------------------"
 echo "Engengis.Delta" 
@@ -1487,6 +1592,7 @@ systemtweak_config_lmk;
 
 systemtweak_config_swap () {
 clear
+cp /system/etc/engengis/S00systemtweak $SYSTEMTWEAK
 echo
 echo "------------------------"
 echo "Engengis.Delta" 
@@ -1692,7 +1798,7 @@ esac
 }
 
 # -------------------------------------------------------------------------
-check; firstboot; entry;
+check; user; firstboot; entry;
 
 
 
