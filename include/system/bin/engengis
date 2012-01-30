@@ -3,11 +3,11 @@
 # Engengis project
 
 # Version information
-BUILD=46 
-CODENAME=Delta3
+BUILD=50
+CODENAME=Delta
 AUTHOR=Redmaner
 COMPILER=Redmaner
-STATUS=Beta2
+STATUS=RC
 OFFICIAL=Yes
 
 # Engengis information
@@ -406,6 +406,7 @@ case "$option" in
        echo "[y/n]"
        read engengisterminal
   else
+       echo
        echo "Terminal is not supported by your build"
        sleep 2
        entry;
@@ -484,8 +485,6 @@ case "$tweaks" in
         systemtweaksmenu;
   else
         cp /system/etc/engengis/S14zipalign $ZIPALIGN;
-        rm -f /data/zipalign.db;
-        rm -f /data/zipalign.log;
         chmod 777 /system/xbin/zipalign;
         chmod 777 $ZIPALIGN;
         sed -i '/zipalignduringboot=*/ d' $SETTINGS;
@@ -1646,7 +1645,7 @@ echo "------------------------"
 echo
 echo " 1 - Dirtyratio 90 - 70"
 echo " 2 - Dirtyratio 75 - 50"
-echo " 3 - Dirtyratio 20 - 12"
+echo " 3 - Dirtyratio 10 - 6"
 echo " b - Device default"
 echo
 echo -n "Please enter your choice: "; read ramdirty;
@@ -1672,10 +1671,10 @@ EOF
   systemtweak_config_writeback;;
   "3") cat >> $SYSTEMTWEAK << EOF
 if [ -e /proc/sys/vm/dirty_ratio ]; then
-      echo "20" > /proc/sys/vm/dirty_ratio
+      echo "10" > /proc/sys/vm/dirty_ratio
 fi;
 if [ -e /proc/sys/vm/dirty_background_ratio ]; then
-      echo "12" > /proc/sys/vm/dirty_background_ratio
+      echo "6" > /proc/sys/vm/dirty_background_ratio
 fi;
 EOF
   systemtweak_config_writeback;;
