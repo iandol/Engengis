@@ -13,7 +13,7 @@ echo " ------------------------"
 echo "    Engengis.Updater   " 
 echo " ------------------------"
 echo
-echo "Latest version = Engengis.Charlie_$VERSION"
+echo "Latest version = Engengis.Delta_v0.5.0.5"
 echo
 if [ $OLDVERSION -eq $VERSION ]; then
      echo "Update is not needed"
