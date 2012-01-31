@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------------------------------------------
-Engengis.Delta_build-46
+Engengis.Delta_v0.5.0.5
 -------------------------------------------------------------------------------------------------------------
 - Initial rootzwiki release
 - Rewritten main code
@@ -20,7 +20,7 @@ Engengis.Delta_build-46
 - Fixed log bug 
 
 -------------------------------------------------------------------------------------------------------------
-Engengis.Charlie_build-44
+Engengis.Charlie_build-44 (v0.4.4.0)
 -------------------------------------------------------------------------------------------------------------
 - Optimized the whole code (it's a lot faster now)
 - Merged all menu's in one file (it's a lot better and faster)
@@ -43,7 +43,7 @@ Engengis.Charlie_build-44
 - Removed dalvik cache verification tweaks
 
 -------------------------------------------------------------------------------------------------------------
-Engengis.Bravo_build-28
+Engengis.Bravo_build-28 (v0.2.8.0)
 -------------------------------------------------------------------------------------------------------------
 - Initial public release to gingerreal forums
 - Added OTA support
@@ -59,6 +59,6 @@ Engengis.Bravo_build-28
 - Fixed a lot off bugs
 
 -------------------------------------------------------------------------------------------------------------
-Engengis.Alpha_build-1
+Engengis.Alpha_build-1 (v0.1.0.0)
 -------------------------------------------------------------------------------------------------------------
 - Initial test team release

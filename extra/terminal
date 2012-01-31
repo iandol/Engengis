@@ -1,8 +1,7 @@
 #!/system/bin/sh
-# Copyright (c) 2012, Jake "redmaner" van der Putten
+# Copyright (c) 2012 - redmaner
 # Engengis Project
-# Version: 2301121746
-# Features = 13
+# Version: 0.5.0.5
 
 BPROP=/system/build.prop
 

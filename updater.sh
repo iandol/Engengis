@@ -5,7 +5,7 @@
 checkupdate () {
 clear
 CONFIG=/data/engengis.conf
-VERSION=46
+VERSION=505
 OLDVERSION=`cat /system/etc/engengis/version`
 
 echo
@@ -48,10 +48,14 @@ case "$update" in
   rm -f /system/bin/engengishss
   rm -f /system/bin/engengisr
   rm -f /system/bin/engengiss
+  rm -f /system/bin/terminal
   rm -f /system/xbin/sqlite3
   rm -f /system/xbin/zipalign
+  rm -f /system/etc/init.d/S00systemtweak
   rm -f /system/etc/init.d/S00ramscript
   rm -f /system/etc/init.d/S07hsstweak
+  rm -f /system/etc/init.d/S21governortweak
+  rm -f /system/etc/init.d/S21hsstweak
   rm -f /system/etc/init.d/S14zipalign
   rm -f /system/etc/init.d/S21sqlite
   rm -f /system/etc/init.d/S28scheduler
@@ -61,12 +65,15 @@ case "$update" in
   rm -f /system/etc/init.d/S56internet
   rm -f /system/etc/init.d/S63internetsecurity
   rm -f /data/engengis.log
+  rm -f /data/zipalign.db
+  rm -f /data/zipalign.log
   echo "Installing new files..."
   mkdir /system/etc/engengis
-  wget -q http://dl.dropbox.com/u/26139869/engengis/system/bin/engengis -O /system/bin/engengis
-  wget -q http://dl.dropbox.com/u/26139869/engengis/system/etc/engengis/S07hsstweak -O /system/etc/engengis/S00ramscript
+  wget -q http://dl.dropbox.com/u/26139869/engengis/system/bin/engengis -O /system/bin/engengis; 
+  wget -q http://dl.dropbox.com/u/26139869/engengis/system/etc/engengis/S00systemtweak -O /system/etc/engengis/S00systemtweak
+  wget -q http://dl.dropbox.com/u/26139869/engengis/system/etc/engengis/S07hsstweak -O /system/etc/engengis/S07hsstweak
   wget -q http://dl.dropbox.com/u/26139869/engengis/system/etc/engengis/S14zipalign -O /system/etc/engengis/S14zipalign
-  wget -q http://dl.dropbox.com/u/26139869/engengis/system/etc/engengis/S21hsstweak -O /system/etc/engengis/S21hsstweak
+  wget -q http://dl.dropbox.com/u/26139869/engengis/system/etc/engengis/S21governortweak -O /system/etc/engengis/S21governortweak
   wget -q http://dl.dropbox.com/u/26139869/engengis/system/etc/engengis/S28bfqscheduler -O /system/etc/engengis/S28bfqscheduler
   wget -q http://dl.dropbox.com/u/26139869/engengis/system/etc/engengis/S28cfqscheduler -O /system/etc/engengis/S28cfqscheduler
   wget -q http://dl.dropbox.com/u/26139869/engengis/system/etc/engengis/S28deadlinescheduler -O /system/etc/engengis/S28deadlinescheduler
@@ -79,14 +86,10 @@ case "$update" in
   wget -q http://dl.dropbox.com/u/26139869/engengis/system/etc/engengis/S35sd2048 -O /system/etc/engengis/S35sd2048
   wget -q http://dl.dropbox.com/u/26139869/engengis/system/etc/engengis/S35sd3072 -O /system/etc/engengis/S35sd3072
   wget -q http://dl.dropbox.com/u/26139869/engengis/system/etc/engengis/S35sd4096 -O /system/etc/engengis/S35sd4096
-  wget -q http://dl.dropbox.com/u/26139869/engengis/system/etc/engengis/S42cpuconservative -O /system/etc/engengis/S42cpuconservative
-  wget -q http://dl.dropbox.com/u/26139869/engengis/system/etc/engengis/S42cpululzactive -O /system/etc/engengis/S42cpululzactive
-  wget -q http://dl.dropbox.com/u/26139869/engengis/system/etc/engengis/S42cpuinteractive -O /system/etc/engengis/S42cpuinteractive
-  wget -q http://dl.dropbox.com/u/26139869/engengis/system/etc/engengis/S42cpuondemand -O /system/etc/engengis/S42cpuondemand
-  wget -q http://dl.dropbox.com/u/26139869/engengis/system/etc/engengis/S42cpusmartassv2 -O /system/etc/engengis/S42cpusmartassv2
   wget -q http://dl.dropbox.com/u/26139869/engengis/system/etc/engengis/S49dropcaches -O /system/etc/engengis/S49dropcaches
   wget -q http://dl.dropbox.com/u/26139869/engengis/system/etc/engengis/S56internet -O /system/etc/engengis/S56internet
   wget -q http://dl.dropbox.com/u/26139869/engengis/system/etc/engengis/S63internetsecurity -O /system/etc/engengis/S63internetsecurity
+  wget -q http://dl.dropbox.com/u/26139869/engengis/system/etc/engengis/terminal -O /system/etc/engengis/terminal
   wget -q http://dl.dropbox.com/u/26139869/engengis/system/etc/engengis/version -O /system/etc/engengis/version
   wget -q http://dl.dropbox.com/u/26139869/engengis/system/xbin/sqlite3 -O /system/xbin/sqlite3
   wget -q http://dl.dropbox.com/u/26139869/engengis/system/xbin/zipalign -O /system/xbin/zipalign

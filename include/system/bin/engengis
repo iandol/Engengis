@@ -1,13 +1,13 @@
 #!/system/bin/sh
-# Copyright (c) 2012, Jake "redmaner" van der Putten
+# Copyright (c) 2012 - redmaner 
 # Engengis project
 
 # Version information
 BUILD=50
+VERSION=v0.5.0.5
 CODENAME=Delta
 AUTHOR=Redmaner
-COMPILER=Redmaner
-STATUS=RC
+STATUS=Stable
 OFFICIAL=Yes
 
 # Engengis information
@@ -1477,10 +1477,9 @@ echo "------------------------"
 echo "Engengis.Delta" 
 echo "------------------------"
 echo
-echo " Build = $BUILD"
+echo " Version = $VERSION"
 echo " Codename = $CODENAME"
 echo " Author = $AUTHOR"
-echo " Compiler = $COMPILER"
 echo " Status = $STATUS"
 echo " Official = $OFFICIAL"
 echo
