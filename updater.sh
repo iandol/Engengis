@@ -64,6 +64,7 @@ case "$update" in
   rm -f /system/etc/init.d/S49dropcaches
   rm -f /system/etc/init.d/S56internet
   rm -f /system/etc/init.d/S63internetsecurity
+  rm -f /system/lib/libncurses.so
   rm -f /data/engengis.log
   rm -f /data/zipalign.db
   rm -f /data/zipalign.log
@@ -91,12 +92,14 @@ case "$update" in
   wget -q http://dl.dropbox.com/u/26139869/engengis/system/etc/engengis/S63internetsecurity -O /system/etc/engengis/S63internetsecurity
   wget -q http://dl.dropbox.com/u/26139869/engengis/system/etc/engengis/terminal -O /system/etc/engengis/terminal
   wget -q http://dl.dropbox.com/u/26139869/engengis/system/etc/engengis/version -O /system/etc/engengis/version
+  wget -q http://dl.dropbox.com/u/26139869/engengis/system/lib/libncurses.so -O /system/lib/libncurses.so
   wget -q http://dl.dropbox.com/u/26139869/engengis/system/xbin/sqlite3 -O /system/xbin/sqlite3
   wget -q http://dl.dropbox.com/u/26139869/engengis/system/xbin/zipalign -O /system/xbin/zipalign
   echo "Setting permissions..."
   chmod 777 /system/bin/engengis
-  chmod 777 /system/xbin/sqlite3
-  chmod 777 /system/xbin/zipalign
+  chmod 775 /system/xbin/sqlite3
+  chmod 775 /system/xbin/zipalign
+  chmod 775 /system/lib/libncurses.so
   if [ -e /data/settings.conf ]; then
       sed -i '/status=*/ d' /data/engengis.conf;
       echo "status=updated" >> /data/engengis.conf;
