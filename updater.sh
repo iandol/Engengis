@@ -91,7 +91,7 @@ case "$update" in
   wget -q http://dl.dropbox.com/u/26139869/engengis/system/etc/engengis/S63internetsecurity -O /system/etc/engengis/S63internetsecurity
   wget -q http://dl.dropbox.com/u/26139869/engengis/system/etc/engengis/terminal -O /system/etc/engengis/terminal
   wget -q http://dl.dropbox.com/u/26139869/engengis/system/etc/engengis/version -O /system/etc/engengis/version
-  wget -q http://dl.dropbox.com/u/26139869/engengis/system/lib/libncurses.so -O /system/lib/libncurses.so
+  wget -q http://dl.dropbox.com/u/26139869/engengis/system/etc/engengis/libncurses.so -O /system/etc/engengis/libncurses.so
   wget -q http://dl.dropbox.com/u/26139869/engengis/system/xbin/sqlite3 -O /system/xbin/sqlite3
   wget -q http://dl.dropbox.com/u/26139869/engengis/system/xbin/zipalign -O /system/xbin/zipalign
   echo "Setting permissions..."
