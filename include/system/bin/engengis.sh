@@ -4,7 +4,7 @@
 
 # Version information
 BUILD=50
-VERSION=v0.5.0.6
+VERSION=v0.5.0.7
 CODENAME=Delta
 AUTHOR=Redmaner
 STATUS=Stable
