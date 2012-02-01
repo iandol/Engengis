@@ -75,15 +75,17 @@ echo "Zipping package..."
 sleep 1;
 cd build/build
 sleep 1
-zip -r engengis *
+zip -r engengis * 
 cd ..
 cd ..
 echo 
 echo "Please type the name off the package: (eg. Engengis.Delta_v0.5.0.6)"
 read packagename
+echo "Signing package..."
 java -jar signzip/signapk.jar signzip/testkey.x509.pem signzip/testkey.pk8 build/build/engengis.zip build/$packagename.zip
 rm -rf build/build
 sleep 1
+echo
 echo "Done find your build at:"
 echo "build/$packagename.zip"
 sleep 3
