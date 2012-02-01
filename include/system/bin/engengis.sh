@@ -4,7 +4,7 @@
 
 # Version information
 BUILD=50
-VERSION=v0.5.0.7
+VERSION=v0.5.0.8
 CODENAME=Delta
 AUTHOR=Redmaner
 STATUS=Stable
@@ -1361,8 +1361,8 @@ read log
 
 case "$log" in
   "1")
-  cp $LOG /sdcard/engengis/engengis.log
-  echo "Find log on /sdcard/engengis/engengis.log"
+  cp $LOG /sdcard/engengis.log
+  echo "Find log on /sdcard/engengis.log"
   sleep 2
   settingsmenu;;
   "2")
