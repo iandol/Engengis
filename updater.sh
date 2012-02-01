@@ -64,7 +64,6 @@ case "$update" in
   rm -f /system/etc/init.d/S49dropcaches
   rm -f /system/etc/init.d/S56internet
   rm -f /system/etc/init.d/S63internetsecurity
-  rm -f /system/lib/libncurses.so
   rm -f /data/engengis.log
   rm -f /data/zipalign.db
   rm -f /data/zipalign.log

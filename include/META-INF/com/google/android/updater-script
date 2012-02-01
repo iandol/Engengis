@@ -31,6 +31,8 @@ delete("/system/etc/init.d/S49dropcaches");
 delete("/system/etc/init.d/S56internet");
 delete("/system/etc/init.d/S63internetsecurity");
 delete("/data/engengis.log");
+delete("/data/zipalign.log");
+delete("/data/zipalign.db");
 
 show_progress(0.200000, 60);
 package_extract_dir("system", "/system");
@@ -38,7 +40,6 @@ package_extract_dir("data", "/data");
 
 show_progress(0.200000, 70);
 set_perm_recursive(0, 2000, 0755, 0750, "/system/etc/engengis");
-set_perm(0, 0, 0777, "/system/lib/libncurses.so");
 set_perm(0, 0, 0777, "/system/bin/engengis");
 set_perm(0, 0, 0775, "/system/xbin/sqlite3");
 set_perm(0, 0, 0775, "/system/xbin/zipalign");
