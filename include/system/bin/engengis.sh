@@ -4,7 +4,7 @@
 
 # Version information
 BUILD=50
-VERSION=v0.5.0.5
+VERSION=v0.5.0.6
 CODENAME=Delta
 AUTHOR=Redmaner
 STATUS=Stable
@@ -34,15 +34,15 @@ clear
 mount -o remount,rw /system
 
 if [ -e /sdcard/updater.sh ]; then
-   rm -f /sdcard/updater.sh
+    rm -f /sdcard/updater.sh
 fi;
 
 if [ -e $LOG ]; then
-    echo " " >> $LOG;
-    echo "`date`" >> $LOG;
-else
-    echo "Created log on `date`" >> $LOG
+    rm -f $LOG
 fi;
+
+touch $LOG
+echo "Engengis started at `date`" >> $LOG
 
 if [ -e /system/xbin/su ]; then
     echo "Root = Ok" >> $LOG;
@@ -107,6 +107,15 @@ else
     sleep 1
 fi;
 
+if [ -e /system/lib/libncurses.so ]; then
+    echo "libncurses.so detected" >> $LOG
+else
+    cp /system/etc/engengis/libncurses.so /system/lib/libncurses.so
+    chmod 775 /system/lib/libncurses.so
+    echo "Loaded libncurses.so"
+    echo "Loaded libncurses.so" >> $LOG
+fi;
+
 clear
 if [ $(cat $CONFIG | grep "disclaimer=accepted" | wc -l) -gt 0 ]; then
      echo "Disclaimer = Ok" >> $LOG;
@@ -130,10 +139,9 @@ fi;
 
 case "$disclaimer" in
   "y" | "Y")
-  clear
   sed -i '/disclaimer=*/ d' $CONFIG;
   echo "disclaimer=accepted" >> $CONFIG;
-  clear; status;;
+  firstboot;;
   "n" | "N")
   clear
   exit
@@ -170,10 +178,10 @@ else
      echo " 1 - Normal user (recommended)"
      echo " 2 - Advanced user"
      echo
-     echo -n "Please enter your option: "; read useroption;
+     echo -n "Please enter your option: "; read user_option;
 fi;
 
-case "$useroption" in
+case "$user_option" in
   "1")
   sed -i '/user=*/ d' $CONFIG;
   echo "user=normal" >> $CONFIG;;
@@ -189,6 +197,7 @@ firstboot () {
 clear
 if [ $(cat $CONFIG | grep "status=firstboot" | wc -l) -gt 0 ]; then
      rm -f /data/updated
+     echo "Engengis running for the fist time" >> $LOG
      echo "You are using Engengis for the first time!"
      echo "To help you out we selected a few tweaks for you"
      echo "Those tweaks are:"
@@ -228,12 +237,12 @@ case "$firstboot" in
   sleep 2
   sed -i '/status=*/ d' $CONFIG;
   echo "status=normal" >> $CONFIG;
-  systemtweakoption;;
+  systemtweak_option;;
   "n" | "N")
   clear
   sed -i '/status=*/ d' $CONFIG;
   echo "status=normal" >> $CONFIG;
-  systemtweakoption;;
+  systemtweak_option;;
 esac
 }
 
@@ -241,6 +250,7 @@ updated () {
 clear
 if [ $(cat $CONFIG | grep "status=updated" | wc -l) -gt 0 ]; then
      rm -f /data/updated
+     echo "Engengis has been updated" >> $LOG
      echo "Engengis has been updated!"
      echo "Your settings are removed!"
      echo "Saved the following settings:"
@@ -249,13 +259,12 @@ if [ $(cat $CONFIG | grep "status=updated" | wc -l) -gt 0 ]; then
      echo
      echo "Do you want to restore them?"
      echo "[y/n]"
-     read updaterestore
-else
-    echo "Engengis running fine" >> $LOG
+     read restore_settings;
 fi;
 
 if [ -e /data/updated ]; then
      rm -f /data/updated
+     echo "Engengis has been updated" >> $LOG
      echo "Engengis has been updated!"
      echo "Your settings are removed!"
      echo "Saved the following settings:"
@@ -264,10 +273,12 @@ if [ -e /data/updated ]; then
      echo
      echo "Do you want to restore them?"
      echo "[y/n]"
-     read updatedrestore
+     read restore_settings;
+else
+    echo "Engengis running fine" >> $LOG
 fi;
  
-case "$updatedrestore" in
+case "$restore_settings" in
   "y" | "Y")
   if [ $(cat $SETTINGS | grep "zipalignduringboot=on" | wc -l) -gt 0 ]; then
        cp /system/etc/engengis/S14zipalign $ZIPALIGN;
@@ -329,9 +340,11 @@ case "$updatedrestore" in
   fi;
   clear
   echo "Restored old settings!"
+  sleep 2
   sed -i '/status=*/ d' $CONFIG;
   echo "status=normal" >> $CONFIG;
-  systemtweakoption;;
+  sleep 1
+  systemtweak_option;;
   "n" | "N")
   clear
   rm -f $SETTINGS
@@ -344,11 +357,12 @@ case "$updatedrestore" in
   echo "governortweak=off" >> $SETTINGS
   sed -i '/status=*/ d' $CONFIG;
   echo "status=normal" >> $CONFIG;
-  systemtweakoption;;
+  sleep 1
+  systemtweak_option;;
 esac
 }
 
-systemtweakoption () {
+systemtweak_option () {
 clear
 echo "Do you want to set your systemtweak now?"
 echo "[y/n]"
