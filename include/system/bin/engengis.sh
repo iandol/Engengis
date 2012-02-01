@@ -4,7 +4,7 @@
 
 # Version information
 BUILD=50
-VERSION=v0.5.0.8
+VERSION=v0.5.0.9
 CODENAME=Delta
 AUTHOR=Redmaner
 STATUS=Stable
@@ -233,7 +233,7 @@ case "$firstboot" in
   sed -i '/internetspeed=*/ d' $SETTINGS;
   echo "internetspeed=on" >> $SETTINGS;
   clear
-  echo "Recommanded tweaks are now ENABLED"
+  echo "Recommended tweaks are now ENABLED"
   sleep 2
   sed -i '/status=*/ d' $CONFIG;
   echo "status=normal" >> $CONFIG;
@@ -1107,7 +1107,7 @@ case "$menu" in
   "1") wipeinitd;;
   "2") disablealltweaks;;
   "3") restorefromfile;;
-  "4") setrecommandedsettings;;
+  "4") setrecommendedsettings;;
   "5")
   if [ $(cat $CONFIG | grep "otasupport=on" | wc -l) -gt 0 ]; then
         sed -i '/otasupport=*/ d' $CONFIG
@@ -1296,7 +1296,7 @@ case "$restoretweaks" in
 esac
 }
 
-setrecommandedsettings () {
+setrecommendedsettings () {
 clear
 echo "Do you want to remove your current tweaks?"
 echo "And enable the following?"
@@ -1307,9 +1307,9 @@ echo "- SD readspeed 256kb"
 echo "- Internet speed tweaks"
 echo 
 echo "[y/n]"
-read recommandedsettings
+read recommendedsettings
 
-case "$recommandedsettings" in
+case "$recommendedsettings" in
   "y" | "Y")
   rm -f $SETTINGS
   rm -f /system/etc/init.d/S00systemtweak
@@ -1346,14 +1346,14 @@ case "$recommandedsettings" in
   echo "ioscheduler=default" >> $SETTINGS;
   echo "governortweak=off" >> $SETTINGS
   clear
-  echo "Recommanded tweaks are now ENABLED";
+  echo "Recommended tweaks are now ENABLED";
   sleep 2;  settingsmenu;;
   "n" | "N") settingsmenu;;
 esac
 }
 
 logoptions () {
-clear
+echo
 echo " 1 - View log"
 echo " 2 - Remove log"
 echo " b - back"
@@ -1444,6 +1444,7 @@ esac
 }
 
 resetengengis () {
+echo
 echo "There are two options you can choose"
 echo 
 echo " 1 - Reset usertype"
