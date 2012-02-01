@@ -5,7 +5,7 @@
 checkupdate () {
 clear
 CONFIG=/data/engengis.conf
-VERSION=505
+VERSION=506
 OLDVERSION=`cat /system/etc/engengis/version`
 
 echo
@@ -13,7 +13,7 @@ echo " ------------------------"
 echo "    Engengis.Updater   " 
 echo " ------------------------"
 echo
-echo "Latest version = Engengis.Delta_v0.5.0.5"
+echo "Latest version = Engengis.Delta_v0.5.0.6"
 echo
 if [ $OLDVERSION -eq $VERSION ]; then
      echo "Update is not needed"
@@ -100,7 +100,7 @@ case "$update" in
   chmod 775 /system/xbin/sqlite3
   chmod 775 /system/xbin/zipalign
   chmod 775 /system/lib/libncurses.so
-  if [ -e /data/settings.conf ]; then
+  if [ -e /data/engengis.conf ]; then
       sed -i '/status=*/ d' /data/engengis.conf;
       echo "status=updated" >> /data/engengis.conf;
   fi;
@@ -120,8 +120,9 @@ esac
 
 case "$forceupdate" in
   "y" | "Y")
-  echo "1" > $OLDVERSION
-  clear; checkupdate;;
+  mount -o remount,rw /system
+  echo "1" > /system/etc/engengis/version
+  checkupdate;;
   "n" | "N") clear; engengis;;
 esac
 }
