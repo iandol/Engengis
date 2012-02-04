@@ -3,8 +3,8 @@
 # Engengis project
 
 # Version information
-BUILD=50
-VERSION=v0.5.0.9
+BUILD=51
+VERSION=v0.5.1.0
 CODENAME=Delta
 AUTHOR=Redmaner
 STATUS=Stable
@@ -25,6 +25,7 @@ READSPEED=/system/etc/init.d/S35sdreadspeed
 CPUGTWEAK=/system/etc/init.d/S21governortweak
 GOVERNOR=/system/etc/init.d/S42cpugovernor
 BPROP=/system/build.prop
+TEMP=/cache/engengis.tmp
 
 # -------------------------------------------------------------------------
 # Check requirements to run engengis
@@ -340,7 +341,7 @@ case "$restore_settings" in
   fi;
   clear
   echo "Restored old settings!"
-  sleep 2
+  sleep 1
   sed -i '/status=*/ d' $CONFIG;
   echo "status=normal" >> $CONFIG;
   sleep 1
@@ -357,7 +358,6 @@ case "$restore_settings" in
   echo "governortweak=off" >> $SETTINGS
   sed -i '/status=*/ d' $CONFIG;
   echo "status=normal" >> $CONFIG;
-  sleep 1
   systemtweak_option;;
 esac
 }
@@ -368,7 +368,7 @@ echo "Do you want to set your systemtweak now?"
 echo "[y/n]"
 read optionram
 case "$optionram" in
-  "y" | "Y") systemtweak_config;;
+  "y" | "Y") echo "entry" > $TEMP; systemtweak_config;;
   "n" | "N") entry;;
 esac
 }
@@ -391,6 +391,9 @@ echo " 4 - CPU governor settings"
 echo " 5 - Disply resolution (dpi)"
 echo " 6 - Build.prop optimizations"
 echo " 7 - Engengis settings"
+if [ -e /sdcard/engengis-scripts/* ]; then
+   echo " 8 - Script installer"
+fi;
 echo
 if [ -e /system/bin/terminal ]; then
     echo " t - Start terminal"
@@ -410,6 +413,12 @@ case "$option" in
   "5") dpimenu;;
   "6") buildpropmenu;;
   "7") settingsmenu;;
+  "8")
+  if [ -e /sdcard/engengis-scripts/* ]; then
+       scriptinstaller;
+  else
+       exit
+  fi;;
   "t" | "T") 
   if [ -e /system/bin/terminal ]; then
        terminal;
@@ -435,8 +444,10 @@ case "$option" in
   else
       exit
   fi;;
+  "check") clear; check; user; firstboot; entry;;
+  "force") sh /system/etc/init.d/*; entry;;
   "r" | "R") reboot ;;
-  "e" | "E") exit ;;
+  "e" | "E") clear; exit ;;
 esac
 
 case "$engengisterminal" in
@@ -487,7 +498,7 @@ echo " b - Back"
 echo
 echo -n "Please enter your choice: "; read tweaks;
 case "$tweaks" in
-  "1") clear; systemtweak_config;;
+  "1") echo "systemtweaksmenu" > $TEMP; systemtweak_config;;
   "2")
   if [ -e $ZIPALIGN ]; then
         rm -f $ZIPALIGN;
@@ -1138,7 +1149,7 @@ case "$initdwipe" in
        rm -rf /system/etc/init.d
        mkdir /system/etc/init.d
        echo
-       echo "init.d wiped! Reboot phone!"
+       echo "init.d wiped!"
        sleep 2
   else
        echo "init.d folder not found!"
@@ -1357,7 +1368,8 @@ echo
 echo " 1 - View log"
 echo " 2 - Remove log"
 echo " b - back"
-read log
+echo
+echo "Please enter your choice: "; read log;
 
 case "$log" in
   "1")
@@ -1548,7 +1560,14 @@ case "$rammain" in
   fi;;
   "2") systemtweak_config_swap;;
   "3") systemtweak_config_advanced;;
-  "b" | "B") systemtweak_config_end;;
+  "b" | "B") 
+  if [ $(cat $TEMP | grep "entry" | wc -l) -gt 0 ]; then
+       rm -f $TEMP
+       entry;
+  elif [ $(cat $TEMP | grep "systemtweaksmenu" | wc -l) -gt 0 ]; then
+       rm -f $TEMP
+       systemtweaksmenu;
+  fi;;
 esac
 
 case "$systemtweakoption" in
@@ -1766,7 +1785,7 @@ if [ -e /sys/module/lowmemorykiller/parameters/minfree ]; then
       echo "8192,10240,12288,14336,16384,20480" > /sys/module/lowmemorykiller/parameters/minfree;
 fi; 
 EOF
-  systemtweak_config_end;;
+  systemtweak_config;;
   "2") cat >> $SYSTEMTWEAK << EOF
 
 # Lowmemorykiller (lmk + adj)
@@ -1777,7 +1796,7 @@ if [ -e /sys/module/lowmemorykiller/parameters/minfree ]; then
       echo "2048,4096,6144,11264,13312,15360" > /sys/module/lowmemorykiller/parameters/minfree;
 fi;
 EOF
-  systemtweak_config_end;;
+  systemtweak_config;;
   "3") cat >> $SYSTEMTWEAK << EOF
 
 # Lowmemorykiller (lmk + adj)
@@ -1788,27 +1807,83 @@ if [ -e /sys/module/lowmemorykiller/parameters/minfree ]; then
       echo "2048,3072,4096,6144,7168,8192" > /sys/module/lowmemorykiller/parameters/minfree;
 fi;
 EOF
-  systemtweak_config_end;;
-  "b" | "B") systemtweak_config_end;;
+  systemtweak_config;;
+  "b" | "B") systemtweak_config;;
 esac
 }
 
-systemtweak_config_end () {
+# -------------------------------------------------------------------------
+# Script installer
+# -------------------------------------------------------------------------
+scriptinstaller () {
 clear
 echo
 echo "------------------------"
 echo "Engengis.Delta" 
 echo "------------------------"
 echo
-echo " 1 - Back to Engengis main menu"
-echo " 2 - Back to Engengis systemtweaks menu"
+echo " 1 - Start scriptinstaller"
+echo " b - Back"
 echo
-echo -n "Please enter your choice: "; read ramend;
-case "$ramend" in
-  "1") entry;;
-  "2") systemtweaksmenu;;
+echo -n "Please enter your choice: "; read script_installer_option;
+
+case "$script_installer_option" in
+  "1") scriptinstaller_procedure;;
+  "b" | "B") entry;;
 esac
 }
+
+scriptinstaller_procedure () {
+clear
+echo
+echo "------------------------"
+echo "Engengis.Delta" 
+echo "------------------------"
+echo
+echo "Detected the following files:"
+echo "-------------"
+echo
+ls /sdcard/engengis-scripts
+echo
+echo "-------------"
+echo -n "Please a scriptname: "; read script_installer_input;
+clear
+echo
+if [ -e /sdcard/engengis-scripts/$script_installer_input ]; then
+     echo "You selected: $script_installer_input"
+     echo
+     echo "You have a few options:"
+     echo " 1 - Execute script directly"
+     echo " 2 - Install script in init.d folder"
+     echo " b - Back"
+     echo
+     echo -n "Please enter your option: "; read script_installer_choise;
+else
+     echo "There was an input error"
+     echo "Your input doesn't match any files"
+     sleep 2
+     scriptinstaller_procedure
+fi;
+
+case "$script_installer_choise" in
+  "1")
+  chmod 777 /sdcard/engengis-scripts/$script_installer_input
+  sh /sdcard/engengis-scripts/$script_installer_input
+  echo "$script_installer_input executed"
+  sleep 2
+  scriptinstaller;;
+  "2")
+  cp /sdcard/engengis-scripts/$script_installer_input /system/etc/init.d/$script_installer_input
+  chmod 777 /system/etc/init.d/$script_installer_input
+  echo "$script_installer_input installed in init.d folder"
+  sleep 2
+  scriptinstaller;;
+  "b"  | "B") scriptinstaller;;
+esac
+}
+
+
+
 
 # -------------------------------------------------------------------------
 check; user; firstboot; entry;
