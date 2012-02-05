@@ -141,8 +141,7 @@ fi;
 case "$disclaimer" in
   "y" | "Y")
   sed -i '/disclaimer=*/ d' $CONFIG;
-  echo "disclaimer=accepted" >> $CONFIG;
-  firstboot;;
+  echo "disclaimer=accepted" >> $CONFIG;;
   "n" | "N")
   clear
   exit
@@ -391,7 +390,7 @@ echo " 4 - CPU governor settings"
 echo " 5 - Disply resolution (dpi)"
 echo " 6 - Build.prop optimizations"
 echo " 7 - Engengis settings"
-if [ -e /sdcard/engengis-scripts/* ]; then
+if [ -e /sdcard/engengis-scripts/on ]; then
    echo " 8 - Script installer"
 fi;
 echo
@@ -414,10 +413,19 @@ case "$option" in
   "6") buildpropmenu;;
   "7") settingsmenu;;
   "8")
-  if [ -e /sdcard/engengis-scripts/* ]; then
+  if [ -e /sdcard/engengis-scripts/on ]; then
        scriptinstaller;
+  elif [ -d /sdcard/engengis-scripts ]; then
+       touch /sdcard/engengis-scripts/on
+       echo
+       echo "Enabled script intaller"
+       sleep 2
   else
-       exit
+       mkdir -p /sdcard/engengis-scripts
+       touch /sdcard/engengis-scripts/on
+       echo
+       echo "Enabled script intaller"
+       sleep 2
   fi;;
   "t" | "T") 
   if [ -e /system/bin/terminal ]; then
@@ -442,7 +450,7 @@ case "$option" in
       chmod 777 /sdcard/updater.sh
       sh /sdcard/updater.sh
   else
-      exit
+      entry;
   fi;;
   "check") clear; check; user; firstboot; entry;;
   "force") sh /system/etc/init.d/*; entry;;
@@ -1098,7 +1106,7 @@ echo "------------------------"
 echo "Engengis.Delta" 
 echo "------------------------"
 echo
-echo " 1 - Wipe init.d folder"
+echo " 1 - Script remover"
 echo " 2 - Disable all tweaks"
 echo " 3 - Load tweaks from settings file"
 echo " 4 - Enable recommended settings"
@@ -1115,7 +1123,7 @@ echo " b - Back"
 echo
 echo -n "Please enter your choice: "; read menu;
 case "$menu" in
-  "1") wipeinitd;;
+  "1") script_remover;;
   "2") disablealltweaks;;
   "3") restorefromfile;;
   "4") setrecommendedsettings;;
@@ -1137,26 +1145,59 @@ case "$menu" in
 esac
 }
 
-wipeinitd () {
+script_remover () {
+clear
 echo
-echo "Do you want to wipe init.d folder?"
-echo "[y/n]"
-read initdwipe
+echo "------------------------"
+echo "Engengis.Delta" 
+echo "------------------------"
+echo
+echo "Detected the following files:"
+echo "-------------"
+echo
+ls /system/etc/init.d/
+echo
+echo "-------------"
+echo " 1 - Remove all scripts"
+echo " 2 - Remove one script"
+echo " b - Back"
+echo
+echo -n "Please enter your choice: "; read remove_menu;
 
-case "$initdwipe" in
-  "y" | "Y")
-  if [ -d /system/etc/init.d ]; then
-       rm -rf /system/etc/init.d
-       mkdir /system/etc/init.d
+case "$remove_menu" in
+  "1")
+  rm -rf /system/etc/init.d
+  mkdir /system/etc/init.d
+  echo
+  echo "All scripts are removed"
+  sleep 2
+  script_remover;;
+  "2")
+  echo
+  echo -n "Please enter a scriptname to remove: "; read script_remover_input;
+  if [ -e /system/etc/init.d/$script_remover_input ]; then
        echo
-       echo "init.d wiped!"
-       sleep 2
+       echo "You selected: $script_remover_input"
+       echo "Are you sure you want to remove it?"
+       echo "[y/n]"
+       read script_remover_choise
   else
-       echo "init.d folder not found!"
-       sleep 2 
-  fi;
-  settingsmenu;;
-  "n" | "N") settingsmenu;;
+       echo "There was an input error"
+       echo "Your input doesn't match any files"
+       sleep 2
+       script_remover;
+  fi;;
+  "b" | "B") settingsmenu;;
+esac
+
+case "$script_remover_choise" in
+  "y" | "Y")
+  rm -f /system/etc/init.d/$script_remover_input
+  echo
+  echo "$script_remover_input removed"
+  sleep 2
+  script_remover;;
+  "n" | "N") script_remover;;
 esac
 }
 
@@ -1227,8 +1268,8 @@ case "$disablealltweaksoption" in
       echo "Removed governor settings";
   fi;
   sleep 3
-  clear; settingsmenu;;
-  "n" | "N") clear; settingsmenu;;
+  settingsmenu;;
+  "n" | "N") settingsmenu;;
 esac
 }
 
@@ -1364,6 +1405,7 @@ esac
 }
 
 logoptions () {
+clear
 echo
 echo " 1 - View log"
 echo " 2 - Remove log"
@@ -1388,6 +1430,7 @@ esac
 
 uninstallengengis () {
 clear
+echo
 echo " 1 - Unistall engengis files on /system"
 echo " 2 - Unistall all engengis files (system + data)"
 echo " b - Back"
@@ -1445,7 +1488,9 @@ case "$engengis" in
   rm -f $CONFIG
   rm -f $LOG
   rm -f $SETTINGS
+  rm -f $TEMP
   rm -f /data/build.prop.bak
+  rm -f /sdcard/engengis-scripts/on
   echo
   echo "Uninstalled engengis! Phone will reboot!"
   sleep 2
@@ -1456,9 +1501,8 @@ esac
 }
 
 resetengengis () {
+clear
 echo
-echo "There are two options you can choose"
-echo 
 echo " 1 - Reset usertype"
 echo " 2 - Reset all settings"
 echo " b - Back"
@@ -1477,6 +1521,8 @@ case "$reset" in
   rm -f $LOG
   rm -f $CONFIG
   rm -f $SETTINGS
+  rm -f $TEMP
+  rm -f /sdcard/engengis-scripts/on
   rm -rf /sdcard/engengis
   rm -f /system/etc/init.d/S00ramscript
   rm -f /system/etc/init.d/S00systemtweak
@@ -1506,11 +1552,11 @@ echo "------------------------"
 echo
 echo " Version = $VERSION"
 echo " Codename = $CODENAME"
-echo " Author = $AUTHOR"
+echo " Author = Redmaner"
 echo " Status = $STATUS"
 echo " Official = $OFFICIAL"
 echo
-echo -n "Press c to continue:"; read version
+echo -n "Press c to continue: "; read version
 
 case "$version" in
   "c" | "C") settingsmenu;;
@@ -1559,7 +1605,12 @@ case "$rammain" in
        echo -n "Please enter your choise: "; read systemtweakoption;
   fi;;
   "2") systemtweak_config_swap;;
-  "3") systemtweak_config_advanced;;
+  "3")
+  if [ $(cat $CONFIG | grep "user=advanced" | wc -l) -gt 0 ]; then
+      systemtweak_config_advanced;
+  else
+      systemtweak_config;
+  fi;;
   "b" | "B") 
   if [ $(cat $TEMP | grep "entry" | wc -l) -gt 0 ]; then
        rm -f $TEMP
@@ -1846,7 +1897,7 @@ echo
 ls /sdcard/engengis-scripts
 echo
 echo "-------------"
-echo -n "Please a scriptname: "; read script_installer_input;
+echo -n "Please enter a scriptname to install: "; read script_installer_input;
 clear
 echo
 if [ -e /sdcard/engengis-scripts/$script_installer_input ]; then
@@ -1855,6 +1906,9 @@ if [ -e /sdcard/engengis-scripts/$script_installer_input ]; then
      echo "You have a few options:"
      echo " 1 - Execute script directly"
      echo " 2 - Install script in init.d folder"
+     if [ $(cat $CONFIG | grep "user=advanced" | wc -l) -gt 0 ]; then
+          echo " 3 - Set up own path for installation"
+     fi;
      echo " b - Back"
      echo
      echo -n "Please enter your option: "; read script_installer_choise;
@@ -1869,21 +1923,67 @@ case "$script_installer_choise" in
   "1")
   chmod 777 /sdcard/engengis-scripts/$script_installer_input
   sh /sdcard/engengis-scripts/$script_installer_input
+  echo
   echo "$script_installer_input executed"
   sleep 2
   scriptinstaller;;
   "2")
   cp /sdcard/engengis-scripts/$script_installer_input /system/etc/init.d/$script_installer_input
   chmod 777 /system/etc/init.d/$script_installer_input
+  echo
   echo "$script_installer_input installed in init.d folder"
   sleep 2
   scriptinstaller;;
+  "3") 
+  if [ $(cat $CONFIG | grep "user=advanced" | wc -l) -gt 0 ]; then
+       scriptinstaller_advanced
+  else
+       scriptinstaller_procedure
+  fi;;     
   "b"  | "B") scriptinstaller;;
 esac
 }
 
+scriptinstaller_advanced () {
+echo
+echo -n "Please enter a path for installation: "; read user_input_path;
+echo
+echo "You have entered: $user_input_path"
+if [ -d $user_input_path ]; then
+     echo "$script_installer_input will be installed in $user_input_path"
+     echo "Are you sure?"
+     echo "[y or n]"
+     read install_script_to_path;
+else
+     echo "The givin path doesn't exists"
+     echo "Do you want to create the path and install it?"
+     echo "[y or n]"
+     read create_path_install_script;  
+fi;
 
+case "$install_script_to_path" in
+  "y" | "Y")
+  cp /sdcard/engengis-scripts/$script_installer_input $user_input_path/$script_installer_input;
+  chmod 777 $user_input_path/$script_installer_input;
+  echo
+  echo "$script_installer_input installed in $user_input_path";
+  sleep 2
+  scriptinstaller;;
+  "n" | "N") scriptinstaller;;
+esac
 
+case "$create_path_install_script" in
+  "y" | "Y")
+  mkdir -p $user_input_path
+  cp /sdcard/engengis-scripts/$script_installer_input $user_input_path/$script_installer_input;
+  chmod 777 $user_input_path/$script_installer_input;
+  echo
+  echo "$script_installer_input installed in $user_input_path";
+  sleep 2
+  scriptinstaller;;
+  "n" | "N") scriptinstaller;;
+esac
+}
 
 # -------------------------------------------------------------------------
 check; user; firstboot; entry;
