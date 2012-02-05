@@ -62,7 +62,7 @@ echo "Installing => version"; cp include/system/etc/engengis/version build/build
 echo "Installing => sqlite3"; cp include/system/xbin/sqlite3 build/build/system/xbin/sqlite3;
 echo "Installing => zipalign"; cp include/system/xbin/zipalign build/build/system/xbin/zipalign;
 if [ $(cat $CONFIG | grep "include_terminal=yes" | wc -l) -gt 0 ]; then
-    echo "Installing => terminal"; cp extra/terminal.sh build/build/system/etc/engengis/terminal;
+    echo "Installing => terminal.sh"; cp extra/terminal.sh build/build/system/etc/engengis/terminal;
 fi;
 if [ $(cat $CONFIG | grep "include_settingsconfig=yes" | wc -l) -gt 0 ]; then
     echo "Installing => terminal"; cp extra/settings.conf build/build/data/settings.conf;
@@ -79,15 +79,20 @@ zip -r engengis *
 cd ..
 cd ..
 echo 
+clear
 echo "Please type the name off the package: (eg. Engengis.Delta_v0.5.0.6)"
 read packagename
 echo "Signing package..."
 java -jar signzip/signapk.jar signzip/testkey.x509.pem signzip/testkey.pk8 build/build/engengis.zip build/$packagename.zip
 rm -rf build/build
+echo "Generating md5sum..."
+cd build
+md5sum -t $packagename.zip > $packagename.md5
 sleep 1
 echo
 echo "Done find your build at:"
 echo "build/$packagename.zip"
+echo "build/$packagename.md5"
 sleep 3
 echo
 echo "End off build progress."
