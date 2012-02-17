@@ -4,7 +4,7 @@
 
 # Version information
 BUILD=51
-VERSION=v0.5.1.0
+VERSION=v0.5.5.3
 CODENAME=Delta
 AUTHOR=Redmaner
 STATUS=Stable
@@ -26,6 +26,7 @@ CPUGTWEAK=/system/etc/init.d/S21governortweak
 GOVERNOR=/system/etc/init.d/S42cpugovernor
 BPROP=/system/build.prop
 TEMP=/cache/engengis.tmp
+
 
 # -------------------------------------------------------------------------
 # Check requirements to run engengis
@@ -82,39 +83,33 @@ else
     sleep 1
 fi;
 
+if [ -e $CONFIG ]; then
+    echo "Configuration file = Ok" >> $LOG;
+else
+    touch $CONFIG;
+    sleep 1
+    echo "otasupport=off" >> $CONFIG;
+    echo "status=firstboot" >> $CONFIG;
+    echo "automaticrestore=on" >> $CONFIG;
+    echo "passwordprotection=off" >> $CONFIG;
+    echo "Configuration file created" >> $LOG;
+    echo "Created configuration file";
+    sleep 1
+fi;
+
 if [ -e $SETTINGS ]; then
     echo "Settings file = Ok" >> $LOG;
 else
     touch $SETTINGS
-    echo "zipalignduringboot=off" >> $SETTINGS
-    echo "dropcachesduringboot=off" >> $SETTINGS
-    echo "internetspeed=off" >> $SETTINGS
-    echo "ioscheduler=default" >> $SETTINGS
-    echo "sdreadspeed=default" >> $SETTINGS
-    echo "governortweak=off" >> $SETTINGS
+    echo "zipalignduringboot=off" >> $SETTINGS;
+    echo "dropcachesduringboot=off" >> $SETTINGS;
+    echo "internetspeed=off" >> $SETTINGS;
+    echo "ioscheduler=default" >> $SETTINGS;
+    echo "sdreadspeed=default" >> $SETTINGS;
+    echo "governortweak=off" >> $SETTINGS;
     echo "Settings file created" >> $LOG;
     echo "Settings file created"
     sleep 1
-fi;
-
-if [ -e $CONFIG ]; then
-    echo "Configuration file = Ok" >> $LOG;
-else
-    touch $CONFIG
-    echo "otasupport=off" >> $CONFIG
-    echo "status=firstboot" >> $CONFIG
-    echo "Configuration file created" >> $LOG;
-    echo "Created configuration file"
-    sleep 1
-fi;
-
-if [ -e /system/lib/libncurses.so ]; then
-    echo "libncurses.so detected" >> $LOG
-else
-    cp /system/etc/engengis/libncurses.so /system/lib/libncurses.so
-    chmod 775 /system/lib/libncurses.so
-    echo "Loaded libncurses.so"
-    echo "Loaded libncurses.so" >> $LOG
 fi;
 
 clear
@@ -190,9 +185,98 @@ case "$user_option" in
   echo "user=advanced" >> $CONFIG;;
 esac
 }
+
+# -------------------------------------------------------------------------
+# Check resource files
+# -------------------------------------------------------------------------
+if [ -e /system/lib/libncurses.so ]; then
+    echo "libncurses.so detected" >> $LOG
+else
+    cp /system/etc/engengis/resources/libncurses.so /system/lib/libncurses.so
+    chmod 775 /system/lib/libncurses.so
+    echo "Loaded libncurses.so"
+    echo "Loaded libncurses.so" >> $LOG
+fi;
+
+if [ -e /system/xbin/sqlite3 ]; then
+    echo "sqlite3 binary detected" >> $LOG
+else
+    cp /system/etc/engengis/resources/sqlite3 /system/xbin/sqlite3
+    chmod 775 /system/xbin/sqlite3
+    echo "Loaded sqlite3 binary"
+    echo "Loaded sqlite3 binary" >> $LOG
+fi;
+
+if [ -e /system/xbin/zipalign ]; then
+    echo "zipalign binary detected" >> $LOG
+else
+    cp /system/etc/engengis/resources/zipalign /system/xbin/zipalign
+    chmod 775 /system/xbin/zipalign
+    echo "Loaded zipalign binary"
+    echo "Loaded zipalign binary" >> $LOG
+fi;
+
+# ------------------------------------------------------------------------
+# Check password/user --> Option in engengis settings
+# ------------------------------------------------------------------------
+check_password () {
+if [ $(cat $CONFIG | grep "passwordprotection=on" | wc -l) -gt 0 ]; then
+     password_procedure;
+else
+     check_restore;
+fi;
+}
+
+password_procedure () {
+clear
+if [ -d /data/engengis-user ]; then
+     echo "Welcome back: `cat /data/engengis-user/name.txt`"
+     echo -n "Password: "; read password_input;
+     if [ $password_input = "`cat /data/engengis-user/password.txt`" ]; then
+           echo "Password = correct"; sleep 1; check_restore;
+     else
+           echo "Password = Wrong"; sleep 1; password_procedure;
+     fi;
+else
+     user_setup;
+fi;
+}
+
+user_setup () {
+clear
+rm -rf /data/engengis-user
+mkdir -p /data/engengis-user
+echo -n "Please enter your name: "; read username_input_setup;
+echo "$username_input_setup" > /data/engengis-user/name.txt
+password_setup;
+}
+
+password_setup () {
+echo -n "Please enter a password: "; read password_input_setup;
+echo "$password_input_setup" > /data/engengis-user/password.txt
+echo -n "Please confirm password: "; read password_confirm_setup;
+if [ $password_confirm_setup = $password_input_setup ]; then
+     echo
+     echo "User profile setup complete!"; sleep 2;
+     check_password;
+else
+     echo
+     echo "Password doesn't match first input"
+     password_setup;
+fi;
+}       
+
 # -------------------------------------------------------------------------
 # Check status of engengis
 # -------------------------------------------------------------------------
+check_restore () {
+if [ $(cat $CONFIG | grep "automaticrestore=on" | wc -l) -gt 0 ]; then
+     firstboot;
+else
+     entry;
+fi;
+}
+
 firstboot () {
 clear
 if [ $(cat $CONFIG | grep "status=firstboot" | wc -l) -gt 0 ]; then
@@ -349,12 +433,12 @@ case "$restore_settings" in
   clear
   rm -f $SETTINGS
   touch $SETTINGS
-  echo "zipalignduringboot=off" >> $SETTINGS
-  echo "dropcachesduringboot=off" >> $SETTINGS
-  echo "internetspeed=off" >> $SETTINGS
-  echo "ioscheduler=default" >> $SETTINGS
-  echo "sdreadspeed=default" >> $SETTINGS
-  echo "governortweak=off" >> $SETTINGS
+  echo "zipalignduringboot=off" >> $SETTINGS;
+  echo "dropcachesduringboot=off" >> $SETTINGS;
+  echo "internetspeed=off" >> $SETTINGS;
+  echo "ioscheduler=default" >> $SETTINGS;
+  echo "sdreadspeed=default" >> $SETTINGS;
+  echo "governortweak=off" >> $SETTINGS;
   sed -i '/status=*/ d' $CONFIG;
   echo "status=normal" >> $CONFIG;
   systemtweak_option;;
@@ -380,7 +464,7 @@ entry () {
 clear
 echo
 echo "------------------------"
-echo "Engengis.Delta" 
+echo "Engengis.$CODENAME" 
 echo "------------------------"
 echo
 echo " 1 - System tweaks" 
@@ -390,9 +474,7 @@ echo " 4 - CPU governor settings"
 echo " 5 - Disply resolution (dpi)"
 echo " 6 - Build.prop optimizations"
 echo " 7 - Engengis settings"
-if [ -e /sdcard/engengis-scripts/on ]; then
-   echo " 8 - Script installer"
-fi;
+echo " 8 - Script manager"
 echo
 if [ -e /system/bin/terminal ]; then
     echo " t - Start terminal"
@@ -412,21 +494,7 @@ case "$option" in
   "5") dpimenu;;
   "6") buildpropmenu;;
   "7") settingsmenu;;
-  "8")
-  if [ -e /sdcard/engengis-scripts/on ]; then
-       scriptinstaller;
-  elif [ -d /sdcard/engengis-scripts ]; then
-       touch /sdcard/engengis-scripts/on
-       echo
-       echo "Enabled script intaller"
-       sleep 2
-  else
-       mkdir -p /sdcard/engengis-scripts
-       touch /sdcard/engengis-scripts/on
-       echo
-       echo "Enabled script intaller"
-       sleep 2
-  fi;;
+  "8") script_manager;;
   "t" | "T") 
   if [ -e /system/bin/terminal ]; then
        terminal;
@@ -452,7 +520,7 @@ case "$option" in
   else
       entry;
   fi;;
-  "check") clear; check; user; firstboot; entry;;
+  "check") clear; check; user; check_password; entry;;
   "force") sh /system/etc/init.d/*; entry;;
   "r" | "R") reboot ;;
   "e" | "E") clear; exit ;;
@@ -477,7 +545,7 @@ systemtweaksmenu () {
 clear
 echo
 echo "------------------------"
-echo "Engengis.Delta" 
+echo "Engengis.$CODENAME" 
 echo "------------------------"
 echo
 echo " 1 - Configure systemtweak" 
@@ -621,7 +689,7 @@ schedulermenu () {
 clear
 echo
 echo "------------------------"
-echo "Engengis.Delta" 
+echo "Engengis.$CODENAME" 
 echo "------------------------"
 echo
 echo " 1 - Set BFQ scheduler"
@@ -712,7 +780,7 @@ readspeedmenu () {
 clear
 echo
 echo "------------------------"
-echo "Engengis.Delta" 
+echo "Engengis.$CODENAME" 
 echo "------------------------"
 echo
 echo " 1 - Set SD-Readspeed to 256kb"
@@ -789,7 +857,7 @@ governormenu () {
 clear
 echo
 echo "------------------------"
-echo "Engengis.Delta" 
+echo "Engengis.$CODENAME" 
 echo "------------------------"
 echo
 if [ -e $CPUGTWEAK ]; then
@@ -826,7 +894,16 @@ case "$optiong" in
         sleep 2
         governormenu;
   fi;;
-  "2") setgovernor;;
+  "2") 
+  if [ -e /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor ]; then
+       setgovernor_cpu0;
+  elif [ -e /sys/devices/system/cpu/cpu1/cpufreq/scaling_governor ]; then
+       setgovernor_cpu1;
+  elif [ -e /sys/devices/system/cpu/cpufreq/scaling_governor ]; then
+       setgovernor_cpufreq;
+  else
+       echo "Your device is not supported to change cpu governor"
+  fi;;
   "3")
   if [ -e $GOVERNOR ]; then
        rm -f $GOVERNOR
@@ -837,16 +914,19 @@ case "$optiong" in
 esac
 }
 
-setgovernor () {
+setgovernor_cpu0 () {
 clear
 echo
 echo "Current governor: `cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor`" 
 echo "Governors supported by kernel:"
 cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors
 echo
-echo "Please type your governor you want to set: ";
+echo "Please type your governor you want to set (b for Back): ";
 read governorinput;
 
+if [ $governorinput = "b" ]; then
+     governormenu;
+fi;
 if [ $(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors | grep "$governorinput" | wc -l) -gt 0 ]; then
      cat > $GOVERNOR << EOF
 #!/system/bin/sh
@@ -858,21 +938,91 @@ if [ -e /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor ]; then
 fi
 EOF
      chmod 777 $GOVERNOR
+     rm -f $SCREENSTATE;
+     sed -i '/screenstatescaling=*/ d' $SETTINGS;
+     echo "screenstatescaling=off" >> $SETTINGS;
      echo
      echo "Governor set to: $governorinput"
-     echo "Do you want to reboot now?"
-     echo "[y/n]"
-     read governorreboot
+     governormenu;
 else
      echo "Kernel doesn't support $governorinput governor"
      sleep 2
      setgovernor;
 fi;
+}
 
-case "$governorreboot" in
-  "y" | "Y") reboot;;
-  "n" | "N") governormenu;;
-esac
+setgovernor_cpu1 () {
+clear
+echo
+echo "Current governor: `cat /sys/devices/system/cpu/cpu1/cpufreq/scaling_governor`" 
+echo "Governors supported by kernel:"
+cat /sys/devices/system/cpu/cpu1/cpufreq/scaling_available_governors
+echo
+echo "Please type your governor you want to set (b for Back): ";
+read governorinput;
+
+if [ $governorinput = "b" ]; then
+     governormenu;
+fi;
+if [ $(cat /sys/devices/system/cpu/cpu1/cpufreq/scaling_available_governors | grep "$governorinput" | wc -l) -gt 0 ]; then
+     cat > $GOVERNOR << EOF
+#!/system/bin/sh
+# Copyright (c) 2012, redmaner
+
+# CPUgovernor = $governorinput
+if [ -e /sys/devices/system/cpu/cpu1/cpufreq/scaling_governor ]; then
+        echo "$governorinput" > /sys/devices/system/cpu/cpu1/cpufreq/scaling_governor
+fi
+EOF
+     chmod 777 $GOVERNOR
+     rm -f $SCREENSTATE;
+     sed -i '/screenstatescaling=*/ d' $SETTINGS;
+     echo "screenstatescaling=off" >> $SETTINGS;
+     echo
+     echo "Governor set to: $governorinput"
+     governormenu;
+else
+     echo "Kernel doesn't support $governorinput governor"
+     sleep 2
+     setgovernor;
+fi;
+}
+
+setgovernor_cpufreq () {
+clear
+echo
+echo "Current governor: `cat /sys/devices/system/cpu/cpufreq/scaling_governor`" 
+echo "Governors supported by kernel:"
+cat /sys/devices/system/cpu/cpufreq/scaling_available_governors
+echo
+echo "Please type your governor you want to set (b for Back): ";
+read governorinput;
+
+if [ $governorinput = "b" ]; then
+     governormenu;
+fi;
+if [ $(cat /sys/devices/system/cpu/cpufreq/scaling_available_governors | grep "$governorinput" | wc -l) -gt 0 ]; then
+     cat > $GOVERNOR << EOF
+#!/system/bin/sh
+# Copyright (c) 2012, redmaner
+
+# CPUgovernor = $governorinput
+if [ -e /sys/devices/system/cpu/cpufreq/scaling_governor ]; then
+        echo "$governorinput" > /sys/devices/system/cpu/cpufreq/scaling_governor
+fi
+EOF
+     chmod 777 $GOVERNOR
+     rm -f $SCREENSTATE;
+     sed -i '/screenstatescaling=*/ d' $SETTINGS;
+     echo "screenstatescaling=off" >> $SETTINGS;
+     echo
+     echo "Governor set to: $governorinput"
+     governormenu;
+else
+     echo "Kernel doesn't support $governorinput governor"
+     sleep 2
+     setgovernor;
+fi;
 }
 
 # -------------------------------------------------------------------------
@@ -882,27 +1032,16 @@ dpimenu () {
 clear
 echo
 echo "------------------------"
-echo "Engengis.Delta" 
+echo "Engengis.$CODENAME" 
 echo "------------------------"
 echo
-echo " 1 - Set dpi value"
-echo " b - Back"
-echo
-echo "--------------------------------"
 echo "Current:`cat $BPROP | grep "ro.sf.lcd_density=*"`"
 echo
-echo -n "Please enter your choice: "; read changedpi;
-case "$changedpi" in
-  "1") setdpi;;
-  "b" | "B") entry;;
-esac
-}
-
-setdpi () {
-clear
+echo "Please enter your dpi value (b for Back): "; read dpiinput
 echo
-echo "Please enter your dpi value: "; read dpiinput
-echo
+if [ $dpiinput = "b" ]; then
+     entry;
+fi;
 echo "Your dpi value will be set to: $dpiinput"
 echo "Are you sure?"
 echo "[y/n]"
@@ -927,7 +1066,7 @@ buildpropmenu () {
 clear
 echo
 echo "------------------------"
-echo "Engengis.Delta" 
+echo "Engengis.$CODENAME" 
 echo "------------------------"
 echo
 if [ $(cat $BPROP | grep "debug.sf.hw=0" | wc -l) -gt 0 ]; then
@@ -1103,31 +1242,83 @@ settingsmenu () {
 clear
 echo
 echo "------------------------"
-echo "Engengis.Delta" 
+echo "Engengis.$CODENAME" 
 echo "------------------------"
 echo
-echo " 1 - Script remover"
-echo " 2 - Disable all tweaks"
-echo " 3 - Load tweaks from settings file"
-echo " 4 - Enable recommended settings"
-if [ $(cat $CONFIG | grep "otasupport=on" | wc -l) -gt 0 ]; then
-     echo " 5 - Disable OTA update support"
-else
-     echo " 5 - Enable OTA update support"
-fi;
-echo " 6 - Log options"
-echo " 7 - Uninstall Engengis"
-echo " 8 - Reset engengis"
-echo " 9 - Version information"
+echo " 1 - Tweak settings"
+echo " 2 - User settings"
+echo " 3 - Log options"
+echo " 4 - Uninstall Engengis"
+echo " 5 - Reset engengis"
+echo " 6 - Version information"
 echo " b - Back"
 echo
 echo -n "Please enter your choice: "; read menu;
 case "$menu" in
-  "1") script_remover;;
-  "2") disablealltweaks;;
-  "3") restorefromfile;;
-  "4") setrecommendedsettings;;
-  "5")
+  "1") tweaksettingsmenu;;
+  "2") usersettingsmenu;;
+  "3") logoptions;;
+  "4") uninstallengengis;;
+  "5") resetengengis;;
+  "6") versioninformation;;
+  "b" | "B") entry;;
+  "r" | "R") reboot ;;
+esac
+}
+
+tweaksettingsmenu () {
+clear
+echo
+echo "------------------------"
+echo "Engengis.$CODENAME" 
+echo "------------------------"
+echo
+echo " 1 - Disable all tweaks"
+echo " 2 - Load tweaks from settings file"
+echo " 3 - Enable recommended settings"
+echo " b - Back"
+echo
+echo -n "Please enter your choice: "; read menusettingstweak;
+
+case "$menusettingstweak" in
+  "1") disablealltweaks;;
+  "2") restorefromfile;;
+  "3") setrecommendedsettings;;
+  "b" | "B") settingsmenu;;
+esac
+}
+
+usersettingsmenu () {
+clear
+echo
+echo "------------------------"
+echo "Engengis.$CODENAME" 
+echo "------------------------"
+echo
+if [ $(cat $CONFIG | grep "otasupport=on" | wc -l) -gt 0 ]; then
+     echo " 1 - Disable OTA update support"
+else
+     echo " 1 - Enable OTA update support"
+fi;
+if [ $(cat $CONFIG | grep "automaticrestore=on" | wc -l) -gt 0 ]; then
+     echo " 2 - Disable automatic restore"
+else
+     echo " 2 - Enable automatic restore"
+fi;
+if [ $(cat $CONFIG | grep "passwordprotection=on" | wc -l) -gt 0 ]; then
+     echo " 3 - Disable password protection"
+else
+     echo " 3 - Enable password protection"
+fi;
+if [ $(cat $CONFIG | grep "passwordprotection=on" | wc -l) -gt 0 ]; then
+     echo " 4 - Reset password"
+fi;
+echo " b - Back"
+echo 
+echo -n "Please enter your choice: "; read menusettingsuser;
+
+case "$menusettingsuser" in
+  "1")
   if [ $(cat $CONFIG | grep "otasupport=on" | wc -l) -gt 0 ]; then
         sed -i '/otasupport=*/ d' $CONFIG
         echo "otasupport=off" >> $CONFIG
@@ -1135,69 +1326,35 @@ case "$menu" in
         sed -i '/otasupport=*/ d' $CONFIG
         echo "otasupport=on" >> $CONFIG
   fi;
-  settingsmenu;;
-  "6") logoptions;;
-  "7") uninstallengengis;;
-  "8") resetengengis;;
-  "9") versioninformation;;
-  "b" | "B") entry;;
-  "r" | "R") reboot ;;
-esac
-}
-
-script_remover () {
-clear
-echo
-echo "------------------------"
-echo "Engengis.Delta" 
-echo "------------------------"
-echo
-echo "Detected the following files:"
-echo "-------------"
-echo
-ls /system/etc/init.d/
-echo
-echo "-------------"
-echo " 1 - Remove all scripts"
-echo " 2 - Remove one script"
-echo " b - Back"
-echo
-echo -n "Please enter your choice: "; read remove_menu;
-
-case "$remove_menu" in
-  "1")
-  rm -rf /system/etc/init.d
-  mkdir /system/etc/init.d
-  echo
-  echo "All scripts are removed"
-  sleep 2
-  script_remover;;
+  usersettingsmenu;;
   "2")
-  echo
-  echo -n "Please enter a scriptname to remove: "; read script_remover_input;
-  if [ -e /system/etc/init.d/$script_remover_input ]; then
-       echo
-       echo "You selected: $script_remover_input"
-       echo "Are you sure you want to remove it?"
-       echo "[y/n]"
-       read script_remover_choise
+  if [ $(cat $CONFIG | grep "automaticrestore=on" | wc -l) -gt 0 ]; then
+        sed -i '/automaticrestore=*/ d' $CONFIG
+        echo "automaticrestore=off" >> $CONFIG
   else
-       echo "There was an input error"
-       echo "Your input doesn't match any files"
-       sleep 2
-       script_remover;
+        sed -i '/automaticrestore=*/ d' $CONFIG
+        echo "automaticrestore=on" >> $CONFIG
+  fi;
+  usersettingsmenu;;
+  "3")
+  if [ $(cat $CONFIG | grep "passwordprotection=on" | wc -l) -gt 0 ]; then
+        sed -i '/passwordprotection=*/ d' $CONFIG
+        echo "passwordprotection=off" >> $CONFIG
+        rm -rf /data/engengis-user
+        usersettingsmenu;
+  else
+        sed -i '/passwordprotection=*/ d' $CONFIG
+        echo "passwordprotection=on" >> $CONFIG
+        check_password;
+  fi;;
+  "4")
+  if [ $(cat $CONFIG | grep "passwordprotection=on" | wc -l) -gt 0 ]; then
+        rm -rf /data/engengis-user
+        check_password;
+  else
+        usersettingsmenu;
   fi;;
   "b" | "B") settingsmenu;;
-esac
-
-case "$script_remover_choise" in
-  "y" | "Y")
-  rm -f /system/etc/init.d/$script_remover_input
-  echo
-  echo "$script_remover_input removed"
-  sleep 2
-  script_remover;;
-  "n" | "N") script_remover;;
 esac
 }
 
@@ -1268,8 +1425,8 @@ case "$disablealltweaksoption" in
       echo "Removed governor settings";
   fi;
   sleep 3
-  settingsmenu;;
-  "n" | "N") settingsmenu;;
+  tweaksettingsmenu;;
+  "n" | "N") tweaksettingsmenu;;
 esac
 }
 
@@ -1343,8 +1500,8 @@ case "$restoretweaks" in
          cp /system/etc/engengis/S35sd4096 $READSPEED;
          chmod 777 $READSPEED;
   fi;
-  settingsmenu;;
-  "n" | "N") settingsmenu;;
+  tweaksettingsmenu;;
+  "n" | "N") tweaksettingsmenu;;
 esac
 }
 
@@ -1399,8 +1556,8 @@ case "$recommendedsettings" in
   echo "governortweak=off" >> $SETTINGS
   clear
   echo "Recommended tweaks are now ENABLED";
-  sleep 2;  settingsmenu;;
-  "n" | "N") settingsmenu;;
+  sleep 2;  tweaksettingsmenu;;
+  "n" | "N") tweaksettingsmenu;;
 esac
 }
 
@@ -1434,7 +1591,8 @@ echo
 echo " 1 - Unistall engengis files on /system"
 echo " 2 - Unistall all engengis files (system + data)"
 echo " b - Back"
-read engengis
+echo
+echo "Please enter your choice: "; read engengis;
 
 case "$engengis" in
   "1")
@@ -1466,6 +1624,7 @@ case "$engengis" in
   "2")
   rm -rf /system/etc/engengis
   rm -rf /sdcard/engengis
+  rm -rf /data/engengis-user
   rm -f /system/etc/init.d/S00systemtweak
   rm -f /system/etc/init.d/S00ramscript
   rm -f /system/etc/init.d/S07hsstweak
@@ -1490,7 +1649,7 @@ case "$engengis" in
   rm -f $SETTINGS
   rm -f $TEMP
   rm -f /data/build.prop.bak
-  rm -f /sdcard/engengis-scripts/on
+  rm -f /sdcard/engengis-scripts/placeholder
   echo
   echo "Uninstalled engengis! Phone will reboot!"
   sleep 2
@@ -1524,11 +1683,13 @@ case "$reset" in
   rm -f $TEMP
   rm -f /sdcard/engengis-scripts/on
   rm -rf /sdcard/engengis
+  rm -rf /data/engengis-user
   rm -f /system/etc/init.d/S00ramscript
   rm -f /system/etc/init.d/S00systemtweak
   rm -f /system/etc/init.d/S07hsstweak
   rm -f /system/etc/init.d/S14zipalign
   rm -f /system/etc/init.d/S21hsstweak
+  rm -f /system/etc/init.d/S21governortweak
   rm -f /system/etc/init.d/S28scheduler
   rm -f /system/etc/init.d/S35sdreadspeed
   rm -f /system/etc/init.d/S42cpugovernor
@@ -1538,7 +1699,7 @@ case "$reset" in
   echo "Removed data..."
   echo "Engengis will reconfigure itself in a few seconds."
   sleep 2
-  check; user; firstboot; entry;;
+  check; user; check_password; entry;;
   "b" | "B") settingsmenu;;
 esac
 }
@@ -1547,7 +1708,7 @@ versioninformation () {
 clear
 echo
 echo "------------------------"
-echo "Engengis.Delta" 
+echo "Engengis.$CODENAME" 
 echo "------------------------"
 echo
 echo " Version = $VERSION"
@@ -1570,7 +1731,7 @@ systemtweak_config () {
 clear
 echo
 echo "------------------------"
-echo "Engengis.Delta" 
+echo "Engengis.$CODENAME" 
 echo "------------------------"
 echo
 if [ -e $SYSTEMTWEAK ]; then
@@ -1618,6 +1779,8 @@ case "$rammain" in
   elif [ $(cat $TEMP | grep "systemtweaksmenu" | wc -l) -gt 0 ]; then
        rm -f $TEMP
        systemtweaksmenu;
+  else
+       entry;
   fi;;
 esac
 
@@ -1639,46 +1802,68 @@ esac
 systemtweak_config_advanced () {
 clear
 cp /system/etc/engengis/S00systemtweak $SYSTEMTWEAK
+chmod 777 $SYSTEMTWEAK
 echo
 echo "------------------------"
-echo "Engengis.Delta" 
+echo "Engengis.$CODENAME" 
 echo "------------------------"
 echo
 echo " NOTICE! only numbers allowed!"
 echo
-echo -n "Please enter a value for swappiness: "; read swappinessinput;
-echo "if [ -e /proc/sys/vm/swappiness ]; then
-      echo "$swappinessinput" > /proc/sys/vm/swappiness
-fi;" >> $SYSTEMTWEAK
-echo -n "Please enter a value for vfs_cache_pressure: "; read vfscachepressureinput;
-echo "if [ -e /proc/sys/vm/vfs_cache_pressure ]; then
-      echo "$vfscachepressureinput" > /proc/sys/vm/vfs_cache_pressure
-fi;" >> $SYSTEMTWEAK
-echo -n "Please enter a value for dirty_ratio: "; read dirtyratioinput;
-echo "if [ -e /proc/sys/vm/dirty_ratio ]; then
-      echo "$dirtyratioinput" > /proc/sys/vm/dirty_ratio
-fi;" >> $SYSTEMTWEAK
-echo -n "Please enter a value for dirty_background_ratio: "; read dirtybackgroundratioinput;
-echo "if [ -e /proc/sys/vm/dirty_background_ratio ]; then
-      echo "$dirtybackgroundratioinput" > /proc/sys/vm/dirty_background_ratio
-fi;" >> $SYSTEMTWEAK
-echo -n "Please enter a value for dirty_expire_centisecs: "; read dirtyexpirecentisecsinput;
-echo "if [ -e /proc/sys/vm/dirty_expire_centisecs ]; then
-      echo "$dirtyexpirecentisecsinput" > /proc/sys/vm/dirty_expire_centisecs
-fi;" >> $SYSTEMTWEAK
-echo -n "Please enter a value for dirty_writeback_centisecs: "; read dirtywritebackcentisecsinput;
-echo "if [ -e /proc/sys/vm/dirty_writeback_centisecs ]; then
-      echo "$dirtywritebackcentisecsinput" > /proc/sys/vm/dirty_writeback_centisecs
-fi;" >> $SYSTEMTWEAK
-systemtweak_config_lmk;
+echo -n "Please enter a value for swappiness: "; read swappiness_input;
+echo -n "Please enter a value for vfs_cache_pressure: "; read vfs_cache_pressure_input;
+echo -n "Please enter a value for dirty_ratio: "; read dirty_ratio_input;
+echo -n "Please enter a value for dirty_background_ratio: "; read dirty_background_ratio_input;
+echo -n "Please enter a value for dirty_expire_centisecs: "; read dirty_expire_centisecs_input;
+echo -n "Please enter a value for dirty_writeback_centisecs: "; read dirty_writeback_centisecs_input;
+echo
+clear
+echo "Your input was: "
+echo
+echo "swappiness = $swappiness_input";
+echo "vfs_cache_pressure = $vfs_cache_pressure_input";
+echo "dirty_ratio = $dirty_ratio_input";
+echo "dirty_background_ratio = $dirty_background_ratio_input";
+echo "dirty_expire_centisecs = $dirty_expire_centisecs_input";
+echo "dirty_writeback_centisecs = $dirty_writeback_centisecs_input";
+echo
+echo "Are you sure you want to continue with these values?"
+echo "[y/n]"; read advanced_systemtweak_config_choice;
+
+case "$advanced_systemtweak_config_choice" in
+  "y" | "Y") cat >> $SYSTEMTWEAK << EOF
+if [ -e /proc/sys/vm/swappiness ]; then
+      echo "$swappiness_input" > /proc/sys/vm/swappiness
+fi;
+if [ -e /proc/sys/vm/vfs_cache_pressure ]; then
+      echo "$vfs_cache_pressure_input" > /proc/sys/vm/vfs_cache_pressure
+fi;
+if [ -e /proc/sys/vm/dirty_ratio ]; then
+      echo "$dirty_ratio_input" > /proc/sys/vm/dirty_ratio
+fi;
+if [ -e /proc/sys/vm/dirty_background_ratio ]; then
+      echo "$dirty_background_ratio_input" > /proc/sys/vm/dirty_background_ratio
+fi;
+if [ -e /proc/sys/vm/dirty_expire_centisecs ]; then
+      echo "$dirty_expire_centisecs_input" > /proc/sys/vm/dirty_expire_centisecs
+fi;
+if [ -e /proc/sys/vm/dirty_writeback_centisecs ]; then
+      echo "$dirty_writeback_centisecs_input" > /proc/sys/vm/dirty_writeback_centisecs
+fi;
+EOF
+  echo "Settings applied"
+  sleep 2; systemtweak_config_lmk;;
+  "n" | "N") systemtweak_config;;
+esac
 }
 
 systemtweak_config_swap () {
 clear
 cp /system/etc/engengis/S00systemtweak $SYSTEMTWEAK
+chmod 777 $SYSTEMTWEAK
 echo
 echo "------------------------"
-echo "Engengis.Delta" 
+echo "Engengis.$CODENAME" 
 echo "------------------------"
 echo
 echo " 1 - Swap Agressive"
@@ -1724,7 +1909,7 @@ systemtweak_config_dirtyratio () {
 clear
 echo
 echo "------------------------"
-echo "Engengis.Delta" 
+echo "Engengis.$CODENAME" 
 echo "------------------------"
 echo
 echo " 1 - Dirtyratio 90 - 70"
@@ -1770,7 +1955,7 @@ systemtweak_config_writeback () {
 clear
 echo
 echo "------------------------"
-echo "Engengis.Delta" 
+echo "Engengis.$CODENAME" 
 echo "------------------------"
 echo
 echo " 1 - Expire/writeback = Battery"
@@ -1816,7 +2001,7 @@ systemtweak_config_lmk () {
 clear
 echo
 echo "------------------------"
-echo "Engengis.Delta" 
+echo "Engengis.$CODENAME" 
 echo "------------------------"
 echo
 echo " 1 - LowMemoryKiller Agressive"
@@ -1864,31 +2049,169 @@ esac
 }
 
 # -------------------------------------------------------------------------
-# Script installer
+# Script Manager
 # -------------------------------------------------------------------------
-scriptinstaller () {
+script_manager () {
 clear
 echo
 echo "------------------------"
-echo "Engengis.Delta" 
+echo "Engengis.$CODENAME" 
 echo "------------------------"
 echo
-echo " 1 - Start scriptinstaller"
+echo " 1 - Script remover"
+if [ -e /sdcard/engengis-scripts/placeholder ]; then
+   echo " 2 - Script installer"
+else
+   echo " 2 - Enable script installer"
+fi;
 echo " b - Back"
 echo
-echo -n "Please enter your choice: "; read script_installer_option;
+echo "Please enter your choice: "; read script_manager_choice;
 
-case "$script_installer_option" in
-  "1") scriptinstaller_procedure;;
+case "$script_manager_choice" in
+  "1") script_remover;;
+  "2")
+  if [ -e /sdcard/engengis-scripts/placeholder ]; then
+       scriptinstaller;
+  elif [ -d /sdcard/engengis-scripts ]; then
+       touch /sdcard/engengis-scripts/placeholder
+       echo
+       echo "Enabled script intaller"
+       sleep 2
+       script_manager;
+  else
+       mkdir -p /sdcard/engengis-scripts
+       touch /sdcard/engengis-scripts/placeholder
+       echo
+       echo "Enabled script intaller"
+       sleep 2
+       script_manager;
+  fi;;
   "b" | "B") entry;;
 esac
 }
 
-scriptinstaller_procedure () {
+script_remover () {
 clear
 echo
 echo "------------------------"
-echo "Engengis.Delta" 
+echo "Engengis.$CODENAME" 
+echo "------------------------"
+echo
+echo "Detected the following files:"
+echo "-------------"
+echo
+ls /system/etc/init.d
+echo
+echo "-------------"
+echo " 1 - Remove all scripts"
+echo " 2 - Remove one script"
+if [ $(cat $CONFIG | grep "user=advanced" | wc -l) -gt 0 ]; then
+     echo " 3 - Set up own path for remover"
+fi;
+echo " b - Back"
+echo
+echo -n "Please enter your choice: "; read remove_menu;
+
+case "$remove_menu" in
+  "1")
+  rm -rf /system/etc/init.d
+  mkdir /system/etc/init.d
+  echo
+  echo "All scripts are removed"
+  sleep 2
+  script_remover;;
+  "2")
+  echo
+  echo -n "Please enter a scriptname to remove (b for Back): "; read script_remover_input;
+  if [ -e /system/etc/init.d/$script_remover_input ]; then
+       if [ $script_remover_input = "b" ]; then
+            script_remover;
+       fi;
+       echo
+       echo "You selected: $script_remover_input"
+       echo "Are you sure you want to remove it?"
+       echo "[y/n]"
+       read script_remover_choice
+  else
+       echo "There was an input error"
+       echo "Your input doesn't match any files"
+       sleep 2
+       script_remover;
+  fi;;
+  "3") 
+  if [ $(cat $CONFIG | grep "user=advanced" | wc -l) -gt 0 ]; then
+       script_remover_ownpath_setup;
+  else
+       script_remover
+  fi;;
+  "b" | "B") script_manager;;
+esac
+
+case "$script_remover_choice" in
+  "y" | "Y")
+  rm -f /system/etc/init.d/$script_remover_input
+  echo
+  echo "$script_remover_input removed"
+  sleep 2
+  script_remover;;
+  "n" | "N") script_remover;;
+esac
+}
+
+script_remover_ownpath_setup () {
+clear
+echo
+echo -n "Please give path to start remover: "; read remover_input_path;
+script_remover_ownpath;
+}
+
+script_remover_ownpath () {
+clear
+echo
+echo "------------------------"
+echo "Engengis.$CODENAME" 
+echo "------------------------"
+echo
+echo "Detected the following files:"
+echo "-------------"
+echo
+ls $remover_input_path
+echo
+echo "-------------"
+echo -n "Please enter a scriptname to remove (b for Back): "; read script_remover_input_path;
+if [ -e $remover_input_path/$script_remover_input_path ]; then
+     if [ $script_remover_input_path = "b" ]; then
+          script_remover_ownpath;
+     fi;
+     echo
+     echo "You selected: $script_remover_input_path"
+     echo "Are you sure you want to remove it?"
+     echo "[y/n]"
+     read script_remover_choice_path
+else
+     echo "There was an input error"
+     echo "Your input doesn't match any files"
+     sleep 2
+     script_remover_ownpath;
+fi;
+
+case "$script_remover_choice_path" in
+  "y" | "Y")
+  rm -f $remover_input_path/$script_remover_input_path
+  echo
+  echo "$script_remover_input_path removed"
+  sleep 2
+  script_remover_ownpath;;
+  "n" | "N") script_remover_ownpath;;
+esac
+}
+
+scriptinstaller () {
+clear
+echo
+echo "------------------------"
+echo "Engengis.$CODENAME" 
 echo "------------------------"
 echo
 echo "Detected the following files:"
@@ -1897,9 +2220,14 @@ echo
 ls /sdcard/engengis-scripts
 echo
 echo "-------------"
+echo " b - Back"
+echo
 echo -n "Please enter a scriptname to install: "; read script_installer_input;
 clear
 echo
+if [ $script_installer_input = "b" ]; then
+     script_manager;
+fi;
 if [ -e /sdcard/engengis-scripts/$script_installer_input ]; then
      echo "You selected: $script_installer_input"
      echo
@@ -1911,15 +2239,15 @@ if [ -e /sdcard/engengis-scripts/$script_installer_input ]; then
      fi;
      echo " b - Back"
      echo
-     echo -n "Please enter your option: "; read script_installer_choise;
+     echo -n "Please enter your option: "; read script_installer_choice;
 else
      echo "There was an input error"
      echo "Your input doesn't match any files"
      sleep 2
-     scriptinstaller_procedure
+     scriptinstaller
 fi;
 
-case "$script_installer_choise" in
+case "$script_installer_choice" in
   "1")
   chmod 777 /sdcard/engengis-scripts/$script_installer_input
   sh /sdcard/engengis-scripts/$script_installer_input
@@ -1938,7 +2266,7 @@ case "$script_installer_choise" in
   if [ $(cat $CONFIG | grep "user=advanced" | wc -l) -gt 0 ]; then
        scriptinstaller_advanced
   else
-       scriptinstaller_procedure
+       scriptinstaller
   fi;;     
   "b"  | "B") scriptinstaller;;
 esac
@@ -1952,12 +2280,12 @@ echo "You have entered: $user_input_path"
 if [ -d $user_input_path ]; then
      echo "$script_installer_input will be installed in $user_input_path"
      echo "Are you sure?"
-     echo "[y or n]"
+     echo "[y/n]"
      read install_script_to_path;
 else
      echo "The givin path doesn't exists"
      echo "Do you want to create the path and install it?"
-     echo "[y or n]"
+     echo "[y/n]"
      read create_path_install_script;  
 fi;
 
@@ -1986,7 +2314,7 @@ esac
 }
 
 # -------------------------------------------------------------------------
-check; user; firstboot; entry;
+check; user; check_password; entry;
 
 
 
