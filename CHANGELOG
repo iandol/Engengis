@@ -1,4 +1,12 @@
 -------------------------------------------------------------------------------------------------------------
+Engengis.Delta_v0.5.5.4
+-------------------------------------------------------------------------------------------------------------
+- This simply syncs to the last public version of Engengis (0.5.5.3) bumped to 0.5.5.4
+_ Importantly, Red fixed the bug where Engengis would copy sqlite3 even if one was present, often breaking sqlite3 with incorrectly linked libraries.
+- Git history will tell you the other changes.
+- This is a personal version, not an official release. YMMV.
+
+-------------------------------------------------------------------------------------------------------------
 Engengis.Delta_v0.5.0.5
 -------------------------------------------------------------------------------------------------------------
 - Initial rootzwiki release

@@ -8,15 +8,13 @@ check_config () {
 if [ -e $CONFIG ]; then
      rm -f $CONFIG
 fi;
-
 touch $CONFIG
 include_md5sum;
 }
 
 include_md5sum () {
 echo
-echo "Do you want to generate md5sum after build?"
-echo "NOTICE works only for linux (for now)"
+echo "Do you want to generate an MD5 checksum after build?"
 echo "[y/n]"
 read includemd5sum;
 
@@ -80,10 +78,9 @@ esac
 
 config_end () {
 echo
-echo "build.conf file has been succesfully created"
-sleep 2
-echo "End off setup"
-sleep 2
+echo "...build.conf file has been succesfully created"
+echo "End of build paramater setup."
+sleep 1
 exit;
 }
 

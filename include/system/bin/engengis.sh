@@ -3,8 +3,8 @@
 # Engengis project
 
 # Version information
-BUILD=51
-VERSION=v0.5.5.3
+BUILD=52
+VERSION=v0.5.5.4
 CODENAME=Delta
 AUTHOR=Redmaner
 STATUS=Stable
@@ -281,7 +281,7 @@ firstboot () {
 clear
 if [ $(cat $CONFIG | grep "status=firstboot" | wc -l) -gt 0 ]; then
      rm -f /data/updated
-     echo "Engengis running for the fist time" >> $LOG
+     echo "Engengis running for the first time" >> $LOG
      echo "You are using Engengis for the first time!"
      echo "To help you out we selected a few tweaks for you"
      echo "Those tweaks are:"

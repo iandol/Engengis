@@ -1,13 +1,13 @@
 #!/system/bin/sh
 # Copyright© 2011 redmaner
-# Engengis updater V16
+# Engengis updater V16a
 
 checkupdate () {
 clear
 CONFIG=/data/engengis.conf
-VERSION=510
-OLDVERSION=`cat /system/etc/engengis/version`
-VERSIONNR=v0.5.1.0
+VERSION=554
+OLDVERSION=$(cat /system/etc/engengis/version)
+VERSIONNR=V0.5.5.4
 
 echo
 echo " ------------------------"
@@ -70,42 +70,42 @@ case "$update" in
   rm -f /data/zipalign.log
   echo "Installing new files..."
   mkdir /system/etc/engengis
-  wget -q http://dl.dropbox.com/u/26139869/engengis/system/bin/engengis -O /system/bin/engengis; 
-  wget -q http://dl.dropbox.com/u/26139869/engengis/system/etc/engengis/S00systemtweak -O /system/etc/engengis/S00systemtweak
-  wget -q http://dl.dropbox.com/u/26139869/engengis/system/etc/engengis/S07hsstweak -O /system/etc/engengis/S07hsstweak
-  wget -q http://dl.dropbox.com/u/26139869/engengis/system/etc/engengis/S14zipalign -O /system/etc/engengis/S14zipalign
-  wget -q http://dl.dropbox.com/u/26139869/engengis/system/etc/engengis/S21governortweak -O /system/etc/engengis/S21governortweak
-  wget -q http://dl.dropbox.com/u/26139869/engengis/system/etc/engengis/S28bfqscheduler -O /system/etc/engengis/S28bfqscheduler
-  wget -q http://dl.dropbox.com/u/26139869/engengis/system/etc/engengis/S28cfqscheduler -O /system/etc/engengis/S28cfqscheduler
-  wget -q http://dl.dropbox.com/u/26139869/engengis/system/etc/engengis/S28deadlinescheduler -O /system/etc/engengis/S28deadlinescheduler
-  wget -q http://dl.dropbox.com/u/26139869/engengis/system/etc/engengis/S28noopscheduler -O /system/etc/engengis/S28noopscheduler
-  wget -q http://dl.dropbox.com/u/26139869/engengis/system/etc/engengis/S28sioscheduler -O /system/etc/engengis/S28sioscheduler
-  wget -q http://dl.dropbox.com/u/26139869/engengis/system/etc/engengis/S28vrscheduler -O /system/etc/engengis/S28vrscheduler
-  wget -q http://dl.dropbox.com/u/26139869/engengis/system/etc/engengis/S35sd256 -O /system/etc/engengis/S35sd256
-  wget -q http://dl.dropbox.com/u/26139869/engengis/system/etc/engengis/S35sd512 -O /system/etc/engengis/S35sd512
-  wget -q http://dl.dropbox.com/u/26139869/engengis/system/etc/engengis/S35sd1024 -O /system/etc/engengis/S35sd1024
-  wget -q http://dl.dropbox.com/u/26139869/engengis/system/etc/engengis/S35sd2048 -O /system/etc/engengis/S35sd2048
-  wget -q http://dl.dropbox.com/u/26139869/engengis/system/etc/engengis/S35sd3072 -O /system/etc/engengis/S35sd3072
-  wget -q http://dl.dropbox.com/u/26139869/engengis/system/etc/engengis/S35sd4096 -O /system/etc/engengis/S35sd4096
-  wget -q http://dl.dropbox.com/u/26139869/engengis/system/etc/engengis/S49dropcaches -O /system/etc/engengis/S49dropcaches
-  wget -q http://dl.dropbox.com/u/26139869/engengis/system/etc/engengis/S56internet -O /system/etc/engengis/S56internet
-  wget -q http://dl.dropbox.com/u/26139869/engengis/system/etc/engengis/S63internetsecurity -O /system/etc/engengis/S63internetsecurity
-  wget -q http://dl.dropbox.com/u/26139869/engengis/system/etc/engengis/terminal -O /system/etc/engengis/terminal
-  wget -q http://dl.dropbox.com/u/26139869/engengis/system/etc/engengis/version -O /system/etc/engengis/version
-  wget -q http://dl.dropbox.com/u/26139869/engengis/system/etc/engengis/libncurses.so -O /system/etc/engengis/libncurses.so
-  wget -q http://dl.dropbox.com/u/26139869/engengis/system/xbin/sqlite3 -O /system/xbin/sqlite3
-  wget -q http://dl.dropbox.com/u/26139869/engengis/system/xbin/zipalign -O /system/xbin/zipalign
+  wget -q https://raw.github.com/iandol/Engengis/master/include/system/bin/engengis.sh -O /system/bin/engengis; 
+  wget -q https://raw.github.com/iandol/Engengis/master/include/system/etc/engengis/S00systemtweak -O /system/etc/engengis/S00systemtweak
+  wget -q https://raw.github.com/iandol/Engengis/master/include/system/etc/engengis/S07hsstweak -O /system/etc/engengis/S07hsstweak
+  wget -q https://raw.github.com/iandol/Engengis/master/include/system/etc/engengis/S14zipalign -O /system/etc/engengis/S14zipalign
+  wget -q https://raw.github.com/iandol/Engengis/master/include/system/etc/engengis/S21governortweak -O /system/etc/engengis/S21governortweak
+  wget -q https://raw.github.com/iandol/Engengis/master/include/system/etc/engengis/S28bfqscheduler -O /system/etc/engengis/S28bfqscheduler
+  wget -q https://raw.github.com/iandol/Engengis/master/include/system/etc/engengis/S28cfqscheduler -O /system/etc/engengis/S28cfqscheduler
+  wget -q https://raw.github.com/iandol/Engengis/master/include/system/etc/engengis/S28deadlinescheduler -O /system/etc/engengis/S28deadlinescheduler
+  wget -q https://raw.github.com/iandol/Engengis/master/include/system/etc/engengis/S28noopscheduler -O /system/etc/engengis/S28noopscheduler
+  wget -q https://raw.github.com/iandol/Engengis/master/include/system/etc/engengis/S28sioscheduler -O /system/etc/engengis/S28sioscheduler
+  wget -q https://raw.github.com/iandol/Engengis/master/include/system/etc/engengis/S28vrscheduler -O /system/etc/engengis/S28vrscheduler
+  wget -q https://raw.github.com/iandol/Engengis/master/include/system/etc/engengis/S35sd256 -O /system/etc/engengis/S35sd256
+  wget -q https://raw.github.com/iandol/Engengis/master/include/system/etc/engengis/S35sd512 -O /system/etc/engengis/S35sd512
+  wget -q https://raw.github.com/iandol/Engengis/master/include/system/etc/engengis/S35sd1024 -O /system/etc/engengis/S35sd1024
+  wget -q https://raw.github.com/iandol/Engengis/master/include/system/etc/engengis/S35sd2048 -O /system/etc/engengis/S35sd2048
+  wget -q https://raw.github.com/iandol/Engengis/master/include/system/etc/engengis/S35sd3072 -O /system/etc/engengis/S35sd3072
+  wget -q https://raw.github.com/iandol/Engengis/master/include/system/etc/engengis/S35sd4096 -O /system/etc/engengis/S35sd4096
+  wget -q https://raw.github.com/iandol/Engengis/master/include/system/etc/engengis/S49dropcaches -O /system/etc/engengis/S49dropcaches
+  wget -q https://raw.github.com/iandol/Engengis/master/include/system/etc/engengis/S56internet -O /system/etc/engengis/S56internet
+  wget -q https://raw.github.com/iandol/Engengis/master/include/system/etc/engengis/S63internetsecurity -O /system/etc/engengis/S63internetsecurity
+  wget -q https://raw.github.com/iandol/Engengis/master/include/system/etc/engengis/terminal -O /system/etc/engengis/terminal
+  wget -q https://raw.github.com/iandol/Engengis/master/include/system/etc/engengis/version -O /system/etc/engengis/version
+  wget -q https://github.com/iandol/Engengis/raw/master/include/system/etc/engengis/resources/libncurses.so -O /system/etc/engengis/libncurses.so
+  wget -q https://github.com/iandol/Engengis/raw/master/include/system/etc/engengis/resources/sqlite3 -O /system/etc/engengis/sqlite3
+  wget -q https://github.com/iandol/Engengis/raw/master/include/system/etc/engengis/resources/zipalign -O /system/etc/engengis/zipalign
   echo "Setting permissions..."
   chmod 777 /system/bin/engengis
-  chmod 775 /system/xbin/sqlite3
-  chmod 775 /system/xbin/zipalign
+  chmod 775 /system/etc/engengis/sqlite3
+  chmod 775 /system/etc/engengis/zipalign
   if [ -e /data/engengis.conf ]; then
       sed -i '/status=*/ d' /data/engengis.conf;
       echo "status=updated" >> /data/engengis.conf;
   fi;
   echo
   echo "Installation complete!"
-  sleep 5
+  sleep 3
   clear 
   engengis
   ;;
