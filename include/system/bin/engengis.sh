@@ -3,12 +3,12 @@
 # Engengis project
 
 # Version information
-BUILD=52
-VERSION=v0.5.5.4
+BUILD=53
+VERSION=v0.5.5.5
 CODENAME=Delta
 AUTHOR=Redmaner
 STATUS=Stable
-OFFICIAL=Yes
+OFFICIAL=No
 
 # Engengis information
 LOG=/data/engengis.log
@@ -44,77 +44,77 @@ if [ -e $LOG ]; then
 fi;
 
 touch $LOG
-echo "Engengis started at `date`" >> $LOG
+echo "Engengis started at $(date)" | tee -a $LOG
 
 if [ -e /system/xbin/su ]; then
-    echo "Root = Ok" >> $LOG;
-    echo "SU binary detected: /system/xbin/su" >> $LOG;
+    echo "Root = Ok" | tee -a $LOG;
+    echo "SU binary detected: /system/xbin/su" | tee -a $LOG;
 elif [ -e /system/bin/su ]; then
-    echo "Root = Ok" >> $LOG;
-    echo "SU binary detected: /system/bin/su" >> $LOG;
+    echo "Root = Ok" | tee -a $LOG;
+    echo "SU binary detected: /system/bin/su" | tee -a $LOG;
 else
-    echo "Root = failure" >> $LOG;
-    echo "SU binary not detected" >> $LOG;
+    echo "Root = failure" | tee -a $LOG;
+    echo "SU binary not detected" | tee -a $LOG;
     echo "SU binary has not been found!"
     echo "Please be sure you are rooted"
     exit
 fi;
 
 if [ -e /system/xbin/busybox ]; then
-    echo "Busybox = Ok" >> $LOG;
-    echo "Busybox detected: /system/xbin/busybox" >> $LOG;
+    echo "Busybox = Ok" | tee -a $LOG;
+    echo "Busybox detected: /system/xbin/busybox" | tee -a $LOG;
 elif [ -e /system/bin/busybox ]; then
-    echo "Busybox = Ok" >> $LOG;
-    echo "Busybox detected: /system/bin/busybox" >> $LOG;
+    echo "Busybox = Ok" | tee -a $LOG;
+    echo "Busybox detected: /system/bin/busybox" | tee -a $LOG;
 else
-    echo "Busybox = failure" >> $LOG;
-    echo "Busybox binary not detected" >> $LOG;
+    echo "Busybox = failure" | tee -a $LOG;
+    echo "Busybox binary not detected" | tee -a $LOG;
     echo "Busybox binary has not been found!"
     echo "Please be sure you have busybox installed"
     exit
 fi;
 
 if [ -d /system/etc/init.d ]; then
-    echo "init.d folder = Ok" >> $LOG;
+    echo "init.d folder = Ok" | tee -a $LOG;
 else
     mkdir /system/etc/init.d
-    echo "Created init.d folder" >> $LOG;
+    echo "Created init.d folder" | tee -a $LOG;
     echo "Created init.d folder"
     sleep 1
 fi;
 
 if [ -e $CONFIG ]; then
-    echo "Configuration file = Ok" >> $LOG;
+    echo "Configuration file = Ok" | tee -a $LOG;
 else
     touch $CONFIG;
     sleep 1
-    echo "otasupport=off" >> $CONFIG;
-    echo "status=firstboot" >> $CONFIG;
-    echo "automaticrestore=on" >> $CONFIG;
-    echo "passwordprotection=off" >> $CONFIG;
-    echo "Configuration file created" >> $LOG;
+    echo "otasupport=off" | tee -a $CONFIG;
+    echo "status=firstboot" | tee -a $CONFIG;
+    echo "automaticrestore=on" | tee -a $CONFIG;
+    echo "passwordprotection=off" | tee -a $CONFIG;
+    echo "Configuration file created" | tee -a $LOG;
     echo "Created configuration file";
     sleep 1
 fi;
 
 if [ -e $SETTINGS ]; then
-    echo "Settings file = Ok" >> $LOG;
+    echo "Settings file = Ok" | tee -a $LOG;
 else
     touch $SETTINGS
-    echo "zipalignduringboot=off" >> $SETTINGS;
-    echo "dropcachesduringboot=off" >> $SETTINGS;
-    echo "internetspeed=off" >> $SETTINGS;
-    echo "ioscheduler=default" >> $SETTINGS;
-    echo "sdreadspeed=default" >> $SETTINGS;
-    echo "governortweak=off" >> $SETTINGS;
-    echo "Settings file created" >> $LOG;
+    echo "zipalignduringboot=off" | tee -a $SETTINGS;
+    echo "dropcachesduringboot=off" | tee -a $SETTINGS;
+    echo "internetspeed=off" | tee -a $SETTINGS;
+    echo "ioscheduler=default" | tee -a $SETTINGS;
+    echo "sdreadspeed=default" | tee -a $SETTINGS;
+    echo "governortweak=off" | tee -a $SETTINGS;
+    echo "Settings file created" | tee -a $LOG;
     echo "Settings file created"
     sleep 1
 fi;
 
 clear
 if [ $(cat $CONFIG | grep "disclaimer=accepted" | wc -l) -gt 0 ]; then
-     echo "Disclaimer = Ok" >> $LOG;
+     echo "Disclaimer = Ok" | tee -a $LOG;
 else
      echo "------------------------"
      echo "Engengis.Disclaimer     "
@@ -150,12 +150,12 @@ if [ $(cat $CONFIG | grep "version=charlie" | wc -l) -gt 0 ]; then
      sed -i '/lmk=*/ d' $SETTINGS;
      sed -i '/cpugovernor=*/ d' $SETTINGS;
      echo "Cleaned up settings file..."
-     echo "Cleaned up settings file" >> $LOG
+     echo "Cleaned up settings file" | tee -a $LOG
      sleep 1 
 fi;
 
 if [ $(cat $CONFIG | grep "version=delta" | wc -l) -gt 0 ]; then
-    echo "Engengis.Delta detected" >> $LOG;
+    echo "Engengis.Delta detected" | tee -a $LOG;
 else
     sed -i '/version=*/ d' $CONFIG;
     echo "version=delta" >> $CONFIG;
@@ -164,11 +164,11 @@ fi;
 user () {
 clear
 if [ $(cat $CONFIG | grep "user=normal" | wc -l) -gt 0 ]; then
-     echo "Normal user detected" >> $LOG
+     echo "Normal user detected" | tee -a $LOG
 elif [ $(cat $CONFIG | grep "user=advanced" | wc -l) -gt 0 ]; then
-     echo "Advanced user detected >> $LOG"
+     echo "Advanced user detected" | tee -a $LOG
 else
-     echo "What for kind off user are you?"
+     echo "What for kind of user are you?"
      echo
      echo " 1 - Normal user (recommended)"
      echo " 2 - Advanced user"
@@ -190,30 +190,30 @@ esac
 # Check resource files
 # -------------------------------------------------------------------------
 if [ -e /system/lib/libncurses.so ]; then
-    echo "libncurses.so detected" >> $LOG
+    echo "libncurses.so detected" | tee -a $LOG
 else
     cp /system/etc/engengis/resources/libncurses.so /system/lib/libncurses.so
     chmod 775 /system/lib/libncurses.so
     echo "Loaded libncurses.so"
-    echo "Loaded libncurses.so" >> $LOG
+    echo "Loaded libncurses.so" | tee -a $LOG
 fi;
 
 if [ -e /system/xbin/sqlite3 ]; then
-    echo "sqlite3 binary detected" >> $LOG
+    echo "sqlite3 binary detected" | tee -a $LOG
 else
     cp /system/etc/engengis/resources/sqlite3 /system/xbin/sqlite3
     chmod 775 /system/xbin/sqlite3
     echo "Loaded sqlite3 binary"
-    echo "Loaded sqlite3 binary" >> $LOG
+    echo "Loaded sqlite3 binary" | tee -a $LOG
 fi;
 
 if [ -e /system/xbin/zipalign ]; then
-    echo "zipalign binary detected" >> $LOG
+    echo "zipalign binary detected" | tee -a $LOG
 else
     cp /system/etc/engengis/resources/zipalign /system/xbin/zipalign
     chmod 775 /system/xbin/zipalign
     echo "Loaded zipalign binary"
-    echo "Loaded zipalign binary" >> $LOG
+    echo "Loaded zipalign binary" | tee -a $LOG
 fi;
 
 # ------------------------------------------------------------------------
@@ -281,7 +281,7 @@ firstboot () {
 clear
 if [ $(cat $CONFIG | grep "status=firstboot" | wc -l) -gt 0 ]; then
      rm -f /data/updated
-     echo "Engengis running for the first time" >> $LOG
+     echo "Engengis running for the first time" | tee -a $LOG
      echo "You are using Engengis for the first time!"
      echo "To help you out we selected a few tweaks for you"
      echo "Those tweaks are:"
@@ -334,7 +334,7 @@ updated () {
 clear
 if [ $(cat $CONFIG | grep "status=updated" | wc -l) -gt 0 ]; then
      rm -f /data/updated
-     echo "Engengis has been updated" >> $LOG
+     echo "Engengis has been updated @ $(date)" | tee -a $LOG
      echo "Engengis has been updated!"
      echo "Your settings are removed!"
      echo "Saved the following settings:"
@@ -348,7 +348,7 @@ fi;
 
 if [ -e /data/updated ]; then
      rm -f /data/updated
-     echo "Engengis has been updated" >> $LOG
+     echo "Engengis has been updated @ $(date)" | tee -a $LOG
      echo "Engengis has been updated!"
      echo "Your settings are removed!"
      echo "Saved the following settings:"
@@ -359,7 +359,7 @@ if [ -e /data/updated ]; then
      echo "[y/n]"
      read restore_settings;
 else
-    echo "Engengis running fine" >> $LOG
+    echo "Engengis running fine @ $(date)" | tee -a $LOG
 fi;
  
 case "$restore_settings" in

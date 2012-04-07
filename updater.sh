@@ -5,9 +5,9 @@
 checkupdate () {
 clear
 CONFIG=/data/engengis.conf
-VERSION=554
+VERSION=555
 OLDVERSION=$(cat /system/etc/engengis/version)
-VERSIONNR=V0.5.5.4
+VERSIONNR=V0.5.5.5
 
 echo
 echo " ------------------------"

@@ -82,12 +82,12 @@ case "$option" in
   chmod 775 /system/xbin/zipalign
   chmod 775 /system/lib/libncurses.so
   if [ -e /data/engengis.conf ]; then
-      sed -i '/status=*/ d' /data/engengis.conf;
-      echo "status=updated" >> /data/engengis.conf;
-  fi;
+      sed -i '/status=*/ d' /data/engengis.conf
+      echo "status=updated" >> /data/engengis.conf
+  fi
   echo
   echo "Installation complete!"
-  sleep 5
+  sleep 1
   clear 
   engengis
   ;;

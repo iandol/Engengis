@@ -3,26 +3,45 @@
 # The HSS (High Speed System) project
 # Thanks to linux kernel 2.6.37.6 source documentation
 # Engengis project
+#================================================
 L="log -p i -t ENGENGIS"
-$L "S07hsstweak Script starting@ $(date)"
-if [ -e /data/do_debug ]; then
-	LOG=/data/debug.log
-	echo "========================================" >> $LOG
-	echo "S07hsstweak Script starting @ $(date)" >> $LOG
-	echo "Build: $(getprop ro.build.version.release)" >> $LOG
-	echo "Mod: $(getprop ro.modversion)" >> $LOG
-	echo "Kernel: $(uname -r)" >> $LOG
-	exec >> $LOG 2>&1
-	if [ $(grep "verbose" /data/do_debug | wc -l) -gt 0 ]
-		set -x
-	fi
+self=$(basename $(readlink -nf $0))
+if [ -e /data/debugon ]; then
+  LOG=/data/debug.log
+  echo "========================================" >> $LOG
+  echo "$self Script starting @ $(date "+%d/%m/%Y %H:%M:%S")" >> $LOG
+  echo "Build: $(getprop ro.build.version.release)" >> $LOG
+  echo "Mod: $(getprop ro.modversion)" >> $LOG
+  echo "Kernel: $(uname -r)" >> $LOG
+  exec >> $LOG 2>&1
+  if [ $(grep "verbose" /data/debugon | wc -l) -gt 0 ]; then
+    set -x
+  fi
 fi
+if [ -s /data/recoverlog ]; then
+  #we test if recoverlog has same name as this script
+  if [ $(grep $self /data/recoverlog | wc -l) -gt 0 ]; then
+    $L "Script errored out last time --- STOPPING SCRIPT!"
+    sync
+    sleep 1
+    exit
+  else
+    $L "Script was OK last boot, append $self to log..."
+    echo $self >> /data/recoverlog
+  fi
+else
+  echo $self > /data/recoverlog
+  $L "$self bootloop Recovery file created..."
+fi
+$L "$self Script starting @ $(date "+%d/%m/%Y %H:%M:%S")"
+#================================================
+
 BML=`ls -d /sys/block/bml*`;
 MMC=`ls -d /sys/block/mmc*`;
-MTD=`ls -d /sys/block/mtd*`;
 STL=`ls -d /sys/block/stl*`;
-TFSR=`ls -d /sys/block/tfsr*`;
-ZRAM=`ls -d /sys/block/zram*`;
+#MTD=`ls -d /sys/block/mtd*`;
+#TFSR=`ls -d /sys/block/tfsr*`;
+#ZRAM=`ls -d /sys/block/zram*`;
 
 # Remount all partitions with noatime
 for k in $(busybox mount | grep relatime | cut -d " " -f3)
@@ -31,7 +50,7 @@ do
 	busybox mount -o remount,noatime $k
 done
 
-# LMK (LowMemoryKiller) and OOM (Out Off Memory) tweaks
+# LMK (LowMemoryKiller) and OOM (Out of Memory) tweaks
 if [ -e /sys/module/lowmemorykiller/parameters/adj ]; then
 	echo "0,1,2,4,6,15" > /sys/module/lowmemorykiller/parameters/adj;
 fi
@@ -103,12 +122,12 @@ echo NO_NORMALIZED_SLEEPERS > /sys/kernel/debug/sched_features
 umount /sys/kernel/debug
 
 # IO scheduler settings
-for i in $BML $MMC $MTD $STL $TFSR $ZRAM;  do
+for i in $BML $MMC $STL;  do
 	if [ -e $i/queue/rotational ];  then
 		echo "0" > $i/queue/rotational
 	fi
 	if [ -e $i/queue/nr_requests ];  then
-		echo "128" > $i/queue/nr_requests  
+		echo "1024" > $i/queue/nr_requests  
 	fi
 	if [ -e $i/queue/iosched/back_seek_penalty ];  then 
 		echo "1" > $i/queue/iosched/back_seek_penalty
@@ -135,5 +154,11 @@ for i in $BML $MMC $MTD $STL $TFSR $ZRAM;  do
 		echo "8" > $i/queue/iosched/quantum
 	fi
 done
-
-$L "S07hsstweak Script ending@ $(date)"
+unset i BML MMC STL
+#================================================
+if [ -s /data/recoverlog ]; then
+  $L "Script ran fine; recovery file: $self removed..."
+  sed -i -e "/$self/d" /data/recoverlog #remove name from recoverlog
+fi
+$L "$self Script ending @ $(date "+%d/%m/%Y %H:%M:%S")"
+#================================================

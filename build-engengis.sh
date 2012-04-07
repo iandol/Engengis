@@ -35,11 +35,10 @@ mkdir -p build/build/data
 echo
 echo "Starting build...."
 sleep 1
-echo "Installing => updated"; cp include/data/updated build/build/data/updated;
+echo "Installing => updated"; cp extra/updated build/build/data/updated;
 echo "Installing => update-binary"; cp include/META-INF/com/google/android/update-binary build/build/META-INF/com/google/android/update-binary;
 echo "Installing => updater-script"; cp include/META-INF/com/google/android/updater-script build/build/META-INF/com/google/android/updater-script;
 echo "Installing => engengis.sh"; cp include/system/bin/engengis.sh build/build/system/bin/engengis;
-echo "Installing => libncurses.so"; cp include/system/etc/engengis/resources/libncurses.so build/build/system/etc/engengis/resources/libncurses.so;
 echo "Installing => S00systemtweak.sh"; cp include/system/etc/engengis/S00systemtweak.sh build/build/system/etc/engengis/S00systemtweak;
 echo "Installing => S07hsstweak.sh"; cp include/system/etc/engengis/S07hsstweak.sh build/build/system/etc/engengis/S07hsstweak;
 echo "Installing => S14zipalign.sh"; cp include/system/etc/engengis/S14zipalign.sh build/build/system/etc/engengis/S14zipalign;
@@ -59,24 +58,24 @@ echo "Installing => S35sd4096.sh"; cp include/system/etc/engengis/S35sd4096.sh b
 echo "Installing => S49dropcaches.sh"; cp include/system/etc/engengis/S49dropcaches.sh build/build/system/etc/engengis/S49dropcaches;
 echo "Installing => S56internet.sh"; cp include/system/etc/engengis/S56internet.sh build/build/system/etc/engengis/S56internet;
 echo "Installing => S63internetsecurity.sh"; cp include/system/etc/engengis/S63internetsecurity.sh build/build/system/etc/engengis/S63internetsecurity;
+cat currentversion > include/system/etc/engengis/version
 echo "Installing => version"; cp include/system/etc/engengis/version build/build/system/etc/engengis/version;
 echo "Installing => sqlite3"; cp include/system/etc/engengis/resources/sqlite3 build/build/system/etc/engengis/resources/sqlite3;
 echo "Installing => zipalign"; cp include/system/etc/engengis/resources/zipalign build/build/system/etc/engengis/resources/zipalign;
+echo "Installing => libncurses.so"; cp include/system/etc/engengis/resources/libncurses.so build/build/system/etc/engengis/resources/libncurses.so;
 if [ $(cat $CONFIG | grep "include_terminal=yes" | wc -l) -gt 0 ]; then
 	echo "Installing => terminal.sh"; cp extra/terminal.sh build/build/system/etc/engengis/terminal;
 fi;
 if [ $(cat $CONFIG | grep "include_settingsconfig=yes" | wc -l) -gt 0 ]; then
-	echo "Installing => terminal"; cp extra/settings.conf build/build/data/settings.conf;
+	echo "Installing => settings"; cp extra/settings.conf build/build/data/settings.conf;
 fi;
 if [ $(cat $CONFIG | grep "include_engengisconfig=yes" | wc -l) -gt 0 ]; then
-	echo "Installing => terminal"; cp extra/engengis.conf build/build/data/engengis.conf;
+	echo "Installing => CONFIG"; cp extra/engengis.conf build/build/data/engengis.conf;
 fi;
 
 echo
 echo "Zipping package..."
-sleep 1;
 cd build/build
-sleep 1
 zip -r engengis *
 cd ..
 cd ..

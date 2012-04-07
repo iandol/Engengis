@@ -1,7 +1,6 @@
 Copyright (c) 2012, Jake "redmaner" van der Putten
 Engengis project
-Version: Delta 
-Universal build 52
+Version: Delta
 
 Conditions of the source
 -------------------------------------------------------------------------------------
